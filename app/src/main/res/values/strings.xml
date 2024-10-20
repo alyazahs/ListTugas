@@ -1,3 +1,20 @@
 <resources>
-    <string name="app_name">ListTugas</string>
+    <string name="app_name">List Tugas</string>
+    <string name="submit">Submit</string>
+    <string name="nama">User</string>
+    <string name="deskripsi">Deskripsi</string>
+    <string name="title_homepage">Mata Kuliah</string>
+    <string name="list_matkul">List of Matkul</string>
+    <string name="hint_task">Masukkan Tugas</string>
+    <string name="add_task">Tambah Tugas</string>
+    <string name="tugas">Tugas</string>
+    <string name="user">To Do List</string>
+    <string name="list_user">List of User</string>
+    <string name="pass">Password</string>
+    <string name="note">CATATAN</string>
+    <string name="judul">judul</string>
+    <string name="title_add">Mobile II</string>
+    <string name="desc_add">Cek tugas kamu apa aja sih,jangan sampai terlwat ya</string>
+    <string name="date">Jumat, 10 Oktober 2024</string>
+    <string name="matkul">Nama Mata Kuliah</string>
 </resources>
