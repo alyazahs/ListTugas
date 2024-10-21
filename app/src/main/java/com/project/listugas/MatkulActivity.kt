@@ -6,7 +6,7 @@ import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.project.ListTugas.databinding.ActivityMatkulBinding
+import com.project.listugas.databinding.ActivityMatkulBinding
 import com.project.listugas.adapter.MatkulAdapter
 import com.project.listugas.entity.Matkul
 import com.project.listugas.viewmodel.MatkulViewModel

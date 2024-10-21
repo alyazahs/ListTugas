@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.project.ListTugas.R
+import com.project.listugas.R
 import com.project.listugas.entity.Note
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter

@@ -12,7 +12,7 @@ import com.project.listugas.entity.Note
 @Dao
 interface NoteDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(note: Note)
+    suspend fun insert(note: Note)
 
     @Update
     suspend fun update(note: Note)

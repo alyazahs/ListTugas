@@ -6,9 +6,9 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/logo"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/logo"
         android:supportsRtl="true"
         android:theme="@style/Theme.ListTugas"
         tools:targetApi="31">
@@ -21,6 +21,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-    </application>
+        <activity android:name=".AddMatkulActivity" />
 
+        <activity android:name=".ListActivity"/>
+
+        <activity android:name=".NoteActivity"/>
+
+        <activity android:name=".AddNoteActivity" />
+
+        <activity android:name=".NoteDetailActivity" />
+
+        <activity android:name=".TugasActivity" />
+
+        <activity android:name=".AddTugasActivity" />
+    </application>
 </manifest>

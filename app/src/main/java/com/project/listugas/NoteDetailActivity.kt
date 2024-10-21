@@ -5,7 +5,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.project.ListTugas.databinding.NoteBinding
+import com.project.listugas.databinding.NoteBinding
 import com.project.listugas.entity.Note
 import com.project.listugas.viewmodel.NoteViewModel
 import java.text.SimpleDateFormat

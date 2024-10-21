@@ -3,7 +3,7 @@ package com.project.listugas
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.project.ListTugas.databinding.ActivityListBinding
+import com.project.listugas.databinding.ActivityListBinding
 
 class ListActivity : AppCompatActivity() {
 

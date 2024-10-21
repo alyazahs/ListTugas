@@ -11,7 +11,7 @@ import com.project.listugas.entity.Tugas
 @Dao
 interface TugasDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(vararg tugas: Tugas)
+    suspend fun insert(vararg tugas: Tugas)
 
     @Delete
     suspend fun delete(tugas: Tugas)

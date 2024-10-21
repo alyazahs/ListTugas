@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.project.ListTugas.databinding.AddMatkulBinding
+import com.project.listugas.databinding.AddMatkulBinding
 import com.project.listugas.entity.Matkul
 import com.project.listugas.viewmodel.MatkulViewModel
 

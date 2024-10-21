@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.project.ListTugas"
+    namespace = "com.project.listugas"
     compileSdk = 34
 
     defaultConfig {

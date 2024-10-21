@@ -12,7 +12,7 @@ import com.project.listugas.entity.Matkul
 @Dao
 interface MatkulDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(vararg matkul: Matkul)
+    suspend fun insert(vararg matkul: Matkul)
 
     @Update
     suspend fun update(matkul: Matkul)
