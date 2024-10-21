@@ -53,8 +53,8 @@ class TugasAdapter(
 
     override fun getItemCount(): Int = tugasList.size
 
-    fun setTugas(tugas: List<Tugas>) {
-        this.tugasList = tugas
+    fun setTugas(tugasList: List<Tugas>) {
+        this.tugasList = tugasList
         notifyDataSetChanged()
     }
 }

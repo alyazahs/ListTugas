@@ -107,8 +107,8 @@ class TugasActivity : AppCompatActivity() {
                     Toast.makeText(this, "Tugas berhasil ditambahkan", Toast.LENGTH_SHORT).show()
                 } else {
                     // Mengupdate status selesai
-                    tugasViewModel.updateStatus(newTugas.id, newTugas.isCompleted)
-                    Toast.makeText(this, "Status tugas diperbarui", Toast.LENGTH_SHORT).show()
+                    tugasViewModel.update(newTugas)
+                    Toast.makeText(this, "Tugas diperbarui", Toast.LENGTH_SHORT).show()
                 }
 
                 dialog.dismiss()  // Tutup popup setelah submit

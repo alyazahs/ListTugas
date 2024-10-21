@@ -6,6 +6,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.project.listugas.entity.Tugas
 
 @Dao
@@ -15,6 +16,9 @@ interface TugasDao {
 
     @Delete
     suspend fun delete(tugas: Tugas)
+
+    @Update
+    suspend fun update(tugas: Tugas)
 
     @Query("UPDATE tugas SET isCompleted = :isCompleted WHERE id = :tugasId")
     suspend fun updateStatus(tugasId: Int, isCompleted: Boolean)
