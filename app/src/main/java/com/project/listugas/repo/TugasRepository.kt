@@ -1,6 +1,8 @@
 package com.project.listugas.repo
 
 import androidx.lifecycle.LiveData
+import com.project.listugas.dao.TugasDao
+import com.project.listugas.entity.Tugas
 
 class TugasRepository(private val tugasDao: TugasDao) {
 

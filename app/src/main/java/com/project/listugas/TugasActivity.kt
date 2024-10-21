@@ -5,6 +5,9 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.project.ListTugas.databinding.ActivityTugasBinding
+import com.project.listugas.adapter.TugasAdapter
+import com.project.listugas.viewmodel.TugasViewModel
 
 class TugasActivity : AppCompatActivity() {
 
@@ -45,6 +48,4 @@ class TugasActivity : AppCompatActivity() {
             startActivity(intent)
         }
     }
-}
-TugasActivity {
 }

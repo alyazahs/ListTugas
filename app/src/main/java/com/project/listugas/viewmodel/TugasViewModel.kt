@@ -4,13 +4,16 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
+import com.project.listugas.database.ListDatabase
+import com.project.listugas.entity.Tugas
+import com.project.listugas.repo.TugasRepository
 import kotlinx.coroutines.launch
 
 class TugasViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: TugasRepository
 
     init {
-        val tugasDao = TodoDatabase.getDatabase(application).tugasDao()
+        val tugasDao = ListDatabase.getDatabase(application).tugasDao()
         repository = TugasRepository(tugasDao)
     }
     fun getTugasByMatkulId(matkulId: Int): LiveData<List<Tugas>> {

@@ -7,6 +7,8 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.project.ListTugas.R
+import com.project.listugas.entity.Tugas
 
 class TugasAdapter(
     private val onDeleteClick: (Tugas) -> Unit,
