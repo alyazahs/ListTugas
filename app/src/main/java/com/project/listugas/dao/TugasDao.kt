@@ -1,4 +1,27 @@
 package com.project.listugas.dao
 
-class TugasDao {
+import androidx.lifecycle.LiveData
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+
+@Dao
+interface TugasDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert(vararg tugas: Tugas)
+
+    @Delete
+    suspend fun delete(tugas: Tugas)
+
+    @Query("UPDATE tugas SET isCompleted = :isCompleted WHERE id = :tugasId")
+    suspend fun updateStatus(tugasId: Int, isCompleted: Boolean)
+
+    @Query("SELECT * FROM tugas WHERE matkulId = :matkulId ORDER BY id ASC")
+    fun getTugasByMatkulId(matkulId: Int): LiveData<List<Tugas>>
+
+
+    @Query("SELECT * FROM tugas")
+    fun getAll(): Array<Tugas>
 }
