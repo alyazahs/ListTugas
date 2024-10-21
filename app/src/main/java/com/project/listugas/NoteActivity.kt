@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.project.ListTugas.databinding.ActivityNoteBinding
 import com.project.listugas.adapter.NoteAdapter
 import com.project.listugas.viewmodel.NoteViewModel
 
