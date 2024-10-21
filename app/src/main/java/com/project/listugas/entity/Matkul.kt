@@ -1,4 +1,11 @@
 package com.project.listugas.entity
 
-class Matkul {
-}
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "matkul")
+data class Matkul(
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val namaMatkul: String,
+    val deskripsi: String
+)
