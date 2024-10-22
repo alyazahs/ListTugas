@@ -55,7 +55,7 @@
             app:layout_constraintTop_toBottomOf="@id/catatan" />
 
         <Button
-            android:id="@+id/btn_deleteMk"
+            android:id="@+id/btn_deleteNt"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_marginEnd="16dp"

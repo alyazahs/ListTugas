@@ -31,6 +31,7 @@ class NoteActivity : AppCompatActivity() {
         // Mendapatkan matkulId dari intent
         matkulId = intent.getIntExtra("MATKUL_ID", -1)
 
+        // Inisialisasi adapter
         adapter = NoteAdapter(
             onDeleteClick = { note ->
                 noteViewModel.delete(note)
@@ -46,9 +47,11 @@ class NoteActivity : AppCompatActivity() {
             }
         )
 
+        // Set adapter dan layout manager untuk RecyclerView
         binding.rvNote.layoutManager = LinearLayoutManager(this)
         binding.rvNote.adapter = adapter
 
+        // Observasi LiveData untuk memperbarui UI secara otomatis
         noteViewModel.getNoteByMatkulId(matkulId).observe(this) { noteList ->
             noteList?.let {
                 adapter.setNotes(it) // Memperbarui daftar catatan
@@ -79,9 +82,6 @@ class NoteActivity : AppCompatActivity() {
             .setView(dialogView)
             .create()
 
-        // Tutup popup jika klik di luar area
-        dialog.setCanceledOnTouchOutside(true)
-
         // Tampilkan dialog
         dialog.show()
 
@@ -99,14 +99,13 @@ class NoteActivity : AppCompatActivity() {
             val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
             val currentDate: String = sdf.format(Date())
 
-
             if (judulNote.isNotEmpty() && deskripsiNote.isNotEmpty()) {
                 val newNote = Note(
                     id = note?.id ?: 0,
                     judul = judulNote,
                     deskripsi = deskripsiNote,
                     matkulId = matkulId,
-                    tanggal =  currentDate
+                    tanggal = currentDate
                 )
 
                 if (note == null) {
