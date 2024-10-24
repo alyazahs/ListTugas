@@ -125,14 +125,13 @@ class TugasActivity : AppCompatActivity() {
                     Toast.makeText(this, "Tugas diperbarui", Toast.LENGTH_SHORT).show()
                 }
 
-                dialog.dismiss()  // Tutup popup setelah submit
+                dialog.dismiss()
             } else {
                 Toast.makeText(this, "Isi semua field", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    // Fungsi untuk menghapus tugas
     private fun deleteTugas(tugas: Tugas) {
         tugasViewModel.delete(tugas)
         Toast.makeText(this, "Tugas berhasil dihapus", Toast.LENGTH_SHORT).show()
