@@ -16,22 +16,20 @@ class NoteDetailActivity : AppCompatActivity() {
     private lateinit var binding: NoteBinding
     private val noteViewModel: NoteViewModel by viewModels()
     private var matkulId: Int = -1
-    private var noteId: Int = -1 // Simpan ID Note
+    private var noteId: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = NoteBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Ambil data dari Intent
         val noteTitle = intent.getStringExtra("NOTE_TITLE")
         val noteContent = intent.getStringExtra("NOTE_CONTENT")
         noteId = intent.getIntExtra("NOTE_ID", -1)
-        matkulId = intent.getIntExtra("MATKUL_ID", -1) // Ambil matkulId jika perlu
+        matkulId = intent.getIntExtra("MATKUL_ID", -1)
 
         Log.d("NoteDetailActivity", "Received noteId: $noteId, matkulId: $matkulId")
 
-        // Tampilkan data di UI
         binding.noteTitle.setText(noteTitle)
         binding.noteContent.setText(noteContent)
 
@@ -44,16 +42,16 @@ class NoteDetailActivity : AppCompatActivity() {
                 val currentDateAndTime: String = sdf.format(Date())
 
                 val updatedNote = Note(
-                    id = noteId, // Pastikan ID tetap sama
-                    matkulId = matkulId, // Gunakan matkulId yang diteruskan
+                    id = noteId,
+                    matkulId = matkulId,
                     judul = updatedTitle,
                     deskripsi = updatedContent,
                     tanggal = currentDateAndTime
                 )
                 noteViewModel.update(updatedNote)
-                Log.d("NoteDetailActivity", "Catatan diperbarui: $updatedNote") // Tambahkan logging
+                Log.d("NoteDetailActivity", "Catatan diperbarui: $updatedNote")
                 Toast.makeText(this, "Catatan berhasil diperbarui", Toast.LENGTH_SHORT).show()
-                finish() // Kembali ke aktivitas sebelumnya
+                finish()
             } else {
                 Toast.makeText(this, "Isi semua field", Toast.LENGTH_SHORT).show()
             }
