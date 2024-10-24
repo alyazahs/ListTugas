@@ -11,12 +11,17 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.project.listugas.databinding.ActivityTugasBinding
 import com.project.listugas.adapter.TugasAdapter
 import com.project.listugas.entity.Tugas
+import com.project.listugas.viewmodel.MatkulViewModel
 import com.project.listugas.viewmodel.TugasViewModel
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class TugasActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityTugasBinding
     private val tugasViewModel: TugasViewModel by viewModels()
+    private val matkulViewModel: MatkulViewModel by viewModels()
     private lateinit var adapter: TugasAdapter
     private var matkulId: Int = -1
 
@@ -51,6 +56,15 @@ class TugasActivity : AppCompatActivity() {
                 adapter.setTugas(it)
             }
         }
+
+        matkulViewModel.getMatkulById(matkulId).observe(this) { matkul ->
+            matkul?.let {
+                binding.tvName.text = it.namaMatkul
+            }
+        }
+
+        val currentDate = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault()).format(Date())
+        binding.tvTime.text = currentDate
 
         // Menampilkan popup untuk menambah tugas baru
         binding.btnTugas.setOnClickListener {
@@ -107,8 +121,8 @@ class TugasActivity : AppCompatActivity() {
                     Toast.makeText(this, "Tugas berhasil ditambahkan", Toast.LENGTH_SHORT).show()
                 } else {
                     // Mengupdate status selesai
-                    tugasViewModel.updateStatus(newTugas.id, newTugas.isCompleted)
-                    Toast.makeText(this, "Status tugas diperbarui", Toast.LENGTH_SHORT).show()
+                    tugasViewModel.update(newTugas)
+                    Toast.makeText(this, "Tugas diperbarui", Toast.LENGTH_SHORT).show()
                 }
 
                 dialog.dismiss()  // Tutup popup setelah submit

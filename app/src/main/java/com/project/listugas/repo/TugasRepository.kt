@@ -18,6 +18,10 @@ class TugasRepository(private val tugasDao: TugasDao) {
         tugasDao.delete(tugas)
     }
 
+    suspend fun update(tugas: Tugas) {
+        tugasDao.update(tugas)
+    }
+
     suspend fun updateStatus(tugasId: Int, isCompleted: Boolean) {
         tugasDao.updateStatus(tugasId, isCompleted)
     }

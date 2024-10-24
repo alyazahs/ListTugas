@@ -4,6 +4,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.project.listugas.R
@@ -23,6 +24,14 @@ class NoteAdapter(
         val judul: TextView = itemView.findViewById(R.id.judul)
         val deskripsi: TextView = itemView.findViewById(R.id.catatan)
         val tanggal: TextView = itemView.findViewById(R.id.tanggal)
+        val deleteButton: Button = itemView.findViewById(R.id.btn_deleteNt)
+
+        init {
+            deleteButton.setOnClickListener {
+                val note = notes[adapterPosition] // Dapatkan item yang sesuai
+                onDeleteClick(note) // Panggil fungsi hapus
+            }
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteViewHolder {

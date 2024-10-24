@@ -14,14 +14,13 @@ import java.util.Locale
 
 class AddNoteActivity : AppCompatActivity() {
     private lateinit var binding: AddNoteBinding
-    private val noteViewModel: NoteViewModel by viewModels() // Inisialisasi ViewModel
+    private val noteViewModel: NoteViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = AddNoteBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Mendapatkan matkulId dari intent
         val matkulId = intent.getIntExtra("MATKUL_ID", -1)
 
         binding.btnSubmit.setOnClickListener {
@@ -39,7 +38,7 @@ class AddNoteActivity : AppCompatActivity() {
                     tanggal = currentDateAndTime
                 )
                 noteViewModel.insert(note)
-                Log.d("AddNoteActivity", "Catatan ditambahkan: $note") // Tambahkan logging
+                Log.d("AddNoteActivity", "Catatan ditambahkan: $note")
                 Toast.makeText(this, "Catatan berhasil ditambahkan", Toast.LENGTH_SHORT).show()
                 finish()
             } else {

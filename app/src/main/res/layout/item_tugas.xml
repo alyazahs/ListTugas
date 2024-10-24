@@ -6,7 +6,9 @@
     android:layout_height="wrap_content"
     android:background="@color/gray"
     app:cardBackgroundColor="@color/gray"
-    app:cardCornerRadius="5dp">
+    app:cardCornerRadius="5dp"
+    app:cardElevation="2dp"
+    app:cardUseCompatPadding="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/matkul"

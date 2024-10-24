@@ -26,6 +26,9 @@ class TugasViewModel(application: Application) : AndroidViewModel(application) {
     fun delete(tugas: Tugas) = viewModelScope.launch {
         repository.delete(tugas)
     }
+    fun update(tugas: Tugas) = viewModelScope.launch {
+        repository.update(tugas)
+    }
     fun updateStatus(tugasId: Int, isCompleted: Boolean) = viewModelScope.launch {
         repository.updateStatus(tugasId, isCompleted)
     }

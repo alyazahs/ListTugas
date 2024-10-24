@@ -13,7 +13,7 @@ import com.project.listugas.entity.Tugas
 class TugasAdapter(
     private val onDeleteClick: (Tugas) -> Unit,
     private val onStatusChange: (Tugas, Boolean) -> Unit,
-    private val onItemClick: (Tugas) -> Unit // Tambahkan onItemClick di sini
+    private val onItemClick: (Tugas) -> Unit
 ) : RecyclerView.Adapter<TugasAdapter.TugasViewHolder>() {
 
     private var tugasList = listOf<Tugas>()
@@ -24,10 +24,9 @@ class TugasAdapter(
         val btnDelete: Button = itemView.findViewById(R.id.btn_deleteTgs)
 
         init {
-            // Tambahkan listener untuk klik pada item
             itemView.setOnClickListener {
                 val tugas = tugasList[adapterPosition]
-                onItemClick(tugas) // Panggil fungsi onItemClick saat item diklik
+                onItemClick(tugas)
             }
         }
     }
@@ -53,8 +52,8 @@ class TugasAdapter(
 
     override fun getItemCount(): Int = tugasList.size
 
-    fun setTugas(tugas: List<Tugas>) {
-        this.tugasList = tugas
+    fun setTugas(tugasList: List<Tugas>) {
+        this.tugasList = tugasList
         notifyDataSetChanged()
     }
 }
