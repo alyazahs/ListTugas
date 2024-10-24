@@ -21,17 +21,15 @@ class NoteActivity : AppCompatActivity() {
     private lateinit var binding: ActivityNoteBinding
     private val noteViewModel: NoteViewModel by viewModels()
     private lateinit var adapter: NoteAdapter
-    private var matkulId: Int = -1 // Menyimpan ID Mata Kuliah
+    private var matkulId: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityNoteBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Mendapatkan matkulId dari intent
         matkulId = intent.getIntExtra("MATKUL_ID", -1)
 
-        // Inisialisasi adapter
         adapter = NoteAdapter(
             onDeleteClick = { note ->
                 noteViewModel.delete(note)
@@ -47,18 +45,15 @@ class NoteActivity : AppCompatActivity() {
             }
         )
 
-        // Set adapter dan layout manager untuk RecyclerView
         binding.rvNote.layoutManager = LinearLayoutManager(this)
         binding.rvNote.adapter = adapter
 
-        // Observasi LiveData untuk memperbarui UI secara otomatis
         noteViewModel.getNoteByMatkulId(matkulId).observe(this) { noteList ->
             noteList?.let {
-                adapter.setNotes(it) // Memperbarui daftar catatan
+                adapter.setNotes(it)
             }
         }
 
-        // Menampilkan popup untuk menambahkan catatan
         binding.btnNote.setOnClickListener {
             showNotePopup()
         }
@@ -67,32 +62,25 @@ class NoteActivity : AppCompatActivity() {
     private fun showNotePopup(note: Note? = null) {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.add_note, null)
 
-        // Inisialisasi input field
         val inputJudul = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.ed_nama)
         val inputDeskripsi = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.ed_desk)
 
-        // Jika edit, isi dengan data yang ada
         note?.let {
             inputJudul.setText(it.judul)
             inputDeskripsi.setText(it.deskripsi)
         }
 
-        // Buat AlertDialog dan atur view
         val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
             .setView(dialogView)
             .create()
-
-        // Tampilkan dialog
         dialog.show()
 
-        // Atur ukuran dan posisi popup di tengah
         dialog.window?.setLayout(
             (resources.displayMetrics.widthPixels * 0.85).toInt(),
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-        // Tombol submit di popup
         dialogView.findViewById<Button>(R.id.btn_submit).setOnClickListener {
             val judulNote = inputJudul.text.toString().trim()
             val deskripsiNote = inputDeskripsi.text.toString().trim()
@@ -115,7 +103,7 @@ class NoteActivity : AppCompatActivity() {
                     noteViewModel.update(newNote)
                     Toast.makeText(this, "Catatan berhasil diperbarui", Toast.LENGTH_SHORT).show()
                 }
-                dialog.dismiss() // Tutup popup
+                dialog.dismiss()
             } else {
                 Toast.makeText(this, "Isi semua field", Toast.LENGTH_SHORT).show()
             }

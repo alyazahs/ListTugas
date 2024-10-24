@@ -28,8 +28,8 @@ class NoteAdapter(
 
         init {
             deleteButton.setOnClickListener {
-                val note = notes[adapterPosition] // Dapatkan item yang sesuai
-                onDeleteClick(note) // Panggil fungsi hapus
+                val note = notes[adapterPosition]
+                onDeleteClick(note)
             }
         }
     }
@@ -62,7 +62,7 @@ class NoteAdapter(
 
     fun setNotes(notes: List<Note>) {
         this.notes = notes.sortedBy { LocalDate.parse(it.tanggal, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) }
-        Log.d("NoteAdapter", "Notes set: $notes") // Tambahkan logging
+        Log.d("NoteAdapter", "Notes set: $notes")
         notifyDataSetChanged()
     }
 }
