@@ -37,10 +37,9 @@ class MatkulAdapter(
         holder.deskripsi.text = matkul.deskripsi
 
         holder.itemView.setOnClickListener {
-            // Mengarahkan ke TugasActivity saat matkul diklik
             val context = holder.itemView.context
             val intent = Intent(context, ListActivity::class.java)
-            intent.putExtra("MATKUL_ID", matkul.id) // Kirim ID matkul ke TugasActivity
+            intent.putExtra("MATKUL_ID", matkul.id)
             context.startActivity(intent)
         }
 
