@@ -6,36 +6,25 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import com.project.listugas.database.ListDatabase
 import com.project.listugas.entity.Matkul
-import com.project.listugas.repo.MatkulRepository
 import kotlinx.coroutines.launch
 
 class MatkulViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository: MatkulRepository
-    val allMatkuls: LiveData<List<Matkul>>
+    private val matkulDao = ListDatabase.getDatabase(application).matkulDao()
+    val allMatkuls: LiveData<List<Matkul>> = matkulDao.getAllMatkuls()
 
-    init {
-        val matkulDao = ListDatabase.getDatabase(application).matkulDao()
-        repository = MatkulRepository(matkulDao)
-        allMatkuls = repository.getAllMatkuls() // Mendapatkan semua matkul
-    }
-
-    // Mendapatkan mata kuliah berdasarkan ID
     fun getMatkulById(matkulId: Int): LiveData<Matkul> {
-        return repository.getMatkulById(matkulId)
+        return matkulDao.getMatkulById(matkulId)
     }
 
-    // Menambah mata kuliah baru
     fun insert(matkul: Matkul) = viewModelScope.launch {
-        repository.insert(matkul)
+        matkulDao.insert(matkul)
     }
 
-    // Memperbarui mata kuliah yang ada
     fun update(matkul: Matkul) = viewModelScope.launch {
-        repository.update(matkul)
+        matkulDao.update(matkul)
     }
 
-    // Menghapus mata kuliah
     fun delete(matkul: Matkul) = viewModelScope.launch {
-        repository.delete(matkul)
+        matkulDao.delete(matkul)
     }
 }

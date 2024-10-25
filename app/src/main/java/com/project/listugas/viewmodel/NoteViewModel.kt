@@ -7,35 +7,27 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import com.project.listugas.database.ListDatabase
 import com.project.listugas.entity.Note
-import com.project.listugas.repo.NoteRepository
 import kotlinx.coroutines.launch
 
 class NoteViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository: NoteRepository
-    val allNotes: LiveData<List<Note>>
-
-    init {
-        val noteDao = ListDatabase.getDatabase(application).noteDao()
-        repository = NoteRepository(noteDao)
-        allNotes = repository.getAllNotes()
-    }
+    private val noteDao = ListDatabase.getDatabase(application).noteDao()
 
     fun getNoteByMatkulId(matkulId: Int): LiveData<List<Note>> {
-        return repository.getNoteByMatkulId(matkulId)
+        return noteDao.getNoteBymatkulId(matkulId)
     }
 
     fun insert(note: Note) = viewModelScope.launch {
-        repository.insert(note)
+        noteDao.insert(note)
         Log.d("NoteViewModel", "Catatan ditambahkan: $note")
     }
 
     fun update(note: Note) = viewModelScope.launch {
-        repository.update(note)
+        noteDao.update(note)
         Log.d("NoteViewModel", "Catatan diperbarui: $note")
     }
 
     fun delete(note: Note) = viewModelScope.launch {
-        repository.delete(note)
+        noteDao.delete(note)
         Log.d("NoteViewModel", "Catatan dihapus: $note")
     }
 }
