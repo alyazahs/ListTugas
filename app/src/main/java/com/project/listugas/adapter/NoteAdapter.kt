@@ -51,11 +51,6 @@ class NoteAdapter(
         holder.itemView.setOnClickListener {
             onNoteClick(note)
         }
-
-        holder.itemView.setOnLongClickListener {
-            onDeleteClick(note)
-            true
-        }
     }
 
     override fun getItemCount(): Int = notes.size
