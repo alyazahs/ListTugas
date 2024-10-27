@@ -1,6 +1,5 @@
 package com.project.listugas
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.ViewGroup
 import android.widget.Button
@@ -99,7 +98,6 @@ class TugasActivity : AppCompatActivity() {
                     namaTugas = namaTugas,
                     isCompleted = tugas?.isCompleted ?: false
                 )
-
 
                 if (tugas == null) {
                     tugasViewModel.insert(newTugas)

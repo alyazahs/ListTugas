@@ -26,7 +26,6 @@ interface TugasDao {
     @Query("SELECT * FROM tugas WHERE matkulId = :matkulId ORDER BY id ASC")
     fun getTugasByMatkulId(matkulId: Int): LiveData<List<Tugas>>
 
-
     @Query("SELECT * FROM tugas")
     fun getAll(): Array<Tugas>
 }

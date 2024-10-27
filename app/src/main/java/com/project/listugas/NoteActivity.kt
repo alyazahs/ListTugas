@@ -61,7 +61,6 @@ class NoteActivity : AppCompatActivity() {
 
     private fun showNotePopup(note: Note? = null) {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.add_note, null)
-
         val inputJudul = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.ed_nama)
         val inputDeskripsi = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.ed_desk)
 

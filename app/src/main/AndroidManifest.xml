@@ -21,18 +21,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".AddMatkulActivity" />
 
         <activity android:name=".ListActivity"/>
 
         <activity android:name=".NoteActivity"/>
 
-        <activity android:name=".AddNoteActivity" />
-
         <activity android:name=".NoteDetailActivity" />
 
         <activity android:name=".TugasActivity" />
-
-        <activity android:name=".AddTugasActivity" />
+        
     </application>
 </manifest>
