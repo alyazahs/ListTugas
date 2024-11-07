@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.project.listugas.adapter.NoteAdapter
 import com.project.listugas.databinding.ActivityNoteBinding
+import com.project.listugas.date.DateUtils
 import com.project.listugas.entity.Note
 import com.project.listugas.viewmodel.NoteViewModel
 import java.text.SimpleDateFormat
@@ -63,8 +64,10 @@ class NoteActivity : AppCompatActivity() {
 
     private fun showNotePopup(note: Note? = null) {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.add_note, null)
-        val inputJudul = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.ed_nama)
-        val inputDeskripsi = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.ed_desk)
+        val inputJudul =
+            dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.ed_nama)
+        val inputDeskripsi =
+            dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.ed_desk)
 
         note?.let {
             inputJudul.setText(it.judul)
@@ -85,8 +88,7 @@ class NoteActivity : AppCompatActivity() {
         dialogView.findViewById<Button>(R.id.btn_submit).setOnClickListener {
             val judulNote = inputJudul.text.toString().trim()
             val deskripsiNote = inputDeskripsi.text.toString().trim()
-            val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-            val currentDate: String = sdf.format(Date())
+            val currentDate = DateUtils.getCurrentDate()
 
             if (judulNote.isNotEmpty() && deskripsiNote.isNotEmpty()) {
                 val newNote = Note(

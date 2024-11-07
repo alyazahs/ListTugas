@@ -1,6 +1,5 @@
 package com.project.listugas.adapter
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,9 +9,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.project.listugas.R
+import com.project.listugas.date.DateUtils
 import com.project.listugas.entity.Note
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 class NoteAdapter(
     private val onDeleteClick: (Note) -> Unit,
@@ -43,9 +41,8 @@ class NoteAdapter(
         holder.judul.text = note.judul
         holder.deskripsi.text = note.deskripsi
 
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-        val date = LocalDate.parse(note.tanggal, formatter)
-        holder.tanggal.text = date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+        val date = DateUtils.parseDate(note.tanggal)
+        holder.tanggal.text = DateUtils.formatDisplayDate(date)
 
         holder.itemView.setOnClickListener {
             onNoteClick(note)
