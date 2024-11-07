@@ -33,7 +33,7 @@ class MatkulActivity : AppCompatActivity() {
         binding.rvMatkul.adapter = adapter
 
         matkulViewModel.allMatkuls.observe(this) { matkuls ->
-            matkuls?.let { adapter.setMatkul(it) }
+            matkuls?.let { adapter.submitList(it) }
         }
 
         binding.btnMatkul.setOnClickListener {

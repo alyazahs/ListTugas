@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.project.listugas.ListActivity
 import com.project.listugas.R
@@ -14,9 +16,7 @@ import com.project.listugas.entity.Matkul
 class MatkulAdapter(
     private val onEditClick: (Matkul) -> Unit,
     private val onDeleteClick: (Matkul) -> Unit
-) : RecyclerView.Adapter<MatkulAdapter.MatkulViewHolder>() {
-
-    private var matkuls = listOf<Matkul>()
+) : ListAdapter<Matkul, MatkulAdapter.MatkulViewHolder>(MatkulDiffCallback()) {
 
     inner class MatkulViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val nama: TextView = itemView.findViewById(R.id.nama)
@@ -32,7 +32,7 @@ class MatkulAdapter(
     }
 
     override fun onBindViewHolder(holder: MatkulViewHolder, position: Int) {
-        val matkul = matkuls[position]
+        val matkul = getItem(position)
         holder.nama.text = matkul.namaMatkul
         holder.deskripsi.text = matkul.deskripsi
 
@@ -52,10 +52,13 @@ class MatkulAdapter(
         }
     }
 
-    override fun getItemCount(): Int = matkuls.size
+    class MatkulDiffCallback : DiffUtil.ItemCallback<Matkul>() {
+        override fun areItemsTheSame(oldItem: Matkul, newItem: Matkul): Boolean {
+            return oldItem.id == newItem.id
+        }
 
-    fun setMatkul(matkuls: List<Matkul>) {
-        this.matkuls = matkuls
-        notifyDataSetChanged()
+        override fun areContentsTheSame(oldItem: Matkul, newItem: Matkul): Boolean {
+            return oldItem == newItem
+        }
     }
 }

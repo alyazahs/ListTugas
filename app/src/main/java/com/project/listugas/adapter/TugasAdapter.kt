@@ -6,6 +6,8 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.project.listugas.R
 import com.project.listugas.entity.Tugas
@@ -14,9 +16,7 @@ class TugasAdapter(
     private val onDeleteClick: (Tugas) -> Unit,
     private val onStatusChange: (Tugas, Boolean) -> Unit,
     private val onItemClick: (Tugas) -> Unit
-) : RecyclerView.Adapter<TugasAdapter.TugasViewHolder>() {
-
-    private var tugasList = listOf<Tugas>()
+) : ListAdapter<Tugas, TugasAdapter.TugasViewHolder>(TugasDiffCallback()) {
 
     inner class TugasViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val nama: TextView = itemView.findViewById(R.id.namaTugas)
@@ -25,7 +25,7 @@ class TugasAdapter(
 
         init {
             itemView.setOnClickListener {
-                val tugas = tugasList[adapterPosition]
+                val tugas = getItem(adapterPosition)
                 onItemClick(tugas)
             }
         }
@@ -37,7 +37,7 @@ class TugasAdapter(
     }
 
     override fun onBindViewHolder(holder: TugasViewHolder, position: Int) {
-        val tugas = tugasList[position]
+        val tugas = getItem(position)
         holder.nama.text = tugas.namaTugas
         holder.checkBox.isChecked = tugas.isCompleted
 
@@ -50,10 +50,13 @@ class TugasAdapter(
         }
     }
 
-    override fun getItemCount(): Int = tugasList.size
+    class TugasDiffCallback : DiffUtil.ItemCallback<Tugas>() {
+        override fun areItemsTheSame(oldItem: Tugas, newItem: Tugas): Boolean {
+            return oldItem.id == newItem.id
+        }
 
-    fun setTugas(tugasList: List<Tugas>) {
-        this.tugasList = tugasList
-        notifyDataSetChanged()
+        override fun areContentsTheSame(oldItem: Tugas, newItem: Tugas): Boolean {
+            return oldItem == newItem
+        }
     }
 }

@@ -50,7 +50,9 @@ class NoteActivity : AppCompatActivity() {
 
         noteViewModel.getNoteByMatkulId(matkulId).observe(this) { noteList ->
             noteList?.let {
-                adapter.setNotes(it)
+                adapter.submitList(it.sortedBy { note ->
+                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse(note.tanggal)
+                })
             }
         }
 

@@ -48,7 +48,7 @@ class TugasActivity : AppCompatActivity() {
 
         tugasViewModel.getTugasByMatkulId(matkulId).observe(this) { tugasList ->
             tugasList?.let {
-                adapter.setTugas(it)
+                adapter.submitList(it)
             }
         }
 
@@ -86,7 +86,7 @@ class TugasActivity : AppCompatActivity() {
             (resources.displayMetrics.widthPixels * 0.85).toInt(),
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)  // Background transparan
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
         dialogView.findViewById<Button>(R.id.btn_submit).setOnClickListener {
             val namaTugas = inputNama.text.toString().trim()

@@ -6,19 +6,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.project.listugas.R
 import com.project.listugas.entity.Note
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-
 class NoteAdapter(
     private val onDeleteClick: (Note) -> Unit,
     private val onNoteClick: (Note) -> Unit
-) : RecyclerView.Adapter<NoteAdapter.NoteViewHolder>() {
-
-    private var notes = listOf<Note>()
+) : ListAdapter<Note, NoteAdapter.NoteViewHolder>(NoteDiffCallback()) {
 
     inner class NoteViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val judul: TextView = itemView.findViewById(R.id.judul)
@@ -28,7 +27,7 @@ class NoteAdapter(
 
         init {
             deleteButton.setOnClickListener {
-                val note = notes[adapterPosition]
+                val note = getItem(adapterPosition)
                 onDeleteClick(note)
             }
         }
@@ -40,7 +39,7 @@ class NoteAdapter(
     }
 
     override fun onBindViewHolder(holder: NoteViewHolder, position: Int) {
-        val note = notes[position]
+        val note = getItem(position)
         holder.judul.text = note.judul
         holder.deskripsi.text = note.deskripsi
 
@@ -53,11 +52,13 @@ class NoteAdapter(
         }
     }
 
-    override fun getItemCount(): Int = notes.size
+    class NoteDiffCallback : DiffUtil.ItemCallback<Note>() {
+        override fun areItemsTheSame(oldItem: Note, newItem: Note): Boolean {
+            return oldItem.id == newItem.id
+        }
 
-    fun setNotes(notes: List<Note>) {
-        this.notes = notes.sortedBy { LocalDate.parse(it.tanggal, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) }
-        Log.d("NoteAdapter", "Notes set: $notes")
-        notifyDataSetChanged()
+        override fun areContentsTheSame(oldItem: Note, newItem: Note): Boolean {
+            return oldItem == newItem
+        }
     }
 }
