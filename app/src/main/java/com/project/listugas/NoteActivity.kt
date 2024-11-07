@@ -2,6 +2,8 @@ package com.project.listugas
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Parcel
+import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Button
@@ -11,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.project.listugas.adapter.NoteAdapter
 import com.project.listugas.databinding.ActivityNoteBinding
+import com.project.listugas.databinding.AddNoteBinding
 import com.project.listugas.date.DateUtils
 import com.project.listugas.entity.Note
 import com.project.listugas.viewmodel.NoteViewModel
@@ -18,11 +21,15 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class NoteActivity : AppCompatActivity() {
+class NoteActivity() : AppCompatActivity(), Parcelable {
     private lateinit var binding: ActivityNoteBinding
     private val noteViewModel: NoteViewModel by viewModels()
     private lateinit var adapter: NoteAdapter
     private var matkulId: Int = -1
+
+    constructor(parcel: Parcel) : this() {
+        matkulId = parcel.readInt()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,21 +69,30 @@ class NoteActivity : AppCompatActivity() {
         }
     }
 
-    private fun showNotePopup(note: Note? = null) {
-        val dialogView = LayoutInflater.from(this).inflate(R.layout.add_note, null)
-        val inputJudul =
-            dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.ed_nama)
-        val inputDeskripsi =
-            dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.ed_desk)
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeInt(matkulId)
+    }
 
-        note?.let {
-            inputJudul.setText(it.judul)
-            inputDeskripsi.setText(it.deskripsi)
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<NoteActivity> {
+        override fun createFromParcel(parcel: Parcel): NoteActivity {
+            return NoteActivity(parcel)
         }
 
+        override fun newArray(size: Int): Array<NoteActivity?> {
+            return arrayOfNulls(size)
+        }
+    }
+
+    private fun showNotePopup(note: Note? = null) {
+        val dialogBinding = AddNoteBinding.inflate(LayoutInflater.from(this))
         val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
-            .setView(dialogView)
+            .setView(dialogBinding.root)
             .create()
+
         dialog.show()
 
         dialog.window?.setLayout(
@@ -85,9 +101,14 @@ class NoteActivity : AppCompatActivity() {
         )
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-        dialogView.findViewById<Button>(R.id.btn_submit).setOnClickListener {
-            val judulNote = inputJudul.text.toString().trim()
-            val deskripsiNote = inputDeskripsi.text.toString().trim()
+        note?.let {
+            dialogBinding.edNama.setText(it.judul)
+            dialogBinding.edDesk.setText(it.deskripsi)
+        }
+
+        dialogBinding.btnSubmit.setOnClickListener {
+            val judulNote = dialogBinding.edNama.text.toString().trim()
+            val deskripsiNote = dialogBinding.edDesk.text.toString().trim()
             val currentDate = DateUtils.getCurrentDate()
 
             if (judulNote.isNotEmpty() && deskripsiNote.isNotEmpty()) {

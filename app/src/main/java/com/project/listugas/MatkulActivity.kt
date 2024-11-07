@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.project.listugas.adapter.MatkulAdapter
 import com.project.listugas.databinding.ActivityMatkulBinding
+import com.project.listugas.databinding.AddMatkulBinding
 import com.project.listugas.entity.Matkul
 import com.project.listugas.viewmodel.MatkulViewModel
 
@@ -42,18 +43,9 @@ class MatkulActivity : AppCompatActivity() {
     }
 
     private fun showMatkulPopup(matkul: Matkul? = null) {
-        val dialogView = LayoutInflater.from(this).inflate(R.layout.add_matkul, null)
-
-        val inputNama = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.ed_nama)
-        val inputDesk = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.ed_desk)
-
-        matkul?.let {
-            inputNama.setText(it.namaMatkul)
-            inputDesk.setText(it.deskripsi)
-        }
-
+        val dialogBinding = AddMatkulBinding.inflate(LayoutInflater.from(this))
         val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
-            .setView(dialogView)
+            .setView(dialogBinding.root)
             .create()
 
         dialog.setCanceledOnTouchOutside(true)
@@ -66,9 +58,14 @@ class MatkulActivity : AppCompatActivity() {
         )
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-        dialogView.findViewById<Button>(R.id.btn_submit).setOnClickListener {
-            val namaMatkul = inputNama.text.toString().trim()
-            val deskripsi = inputDesk.text.toString().trim()
+        matkul?.let {
+            dialogBinding.edNama.setText(it.namaMatkul)
+            dialogBinding.edDesk.setText(it.deskripsi)
+        }
+
+        dialogBinding.btnSubmit.setOnClickListener {
+            val namaMatkul = dialogBinding.edNama.text.toString().trim()
+            val deskripsi = dialogBinding.edDesk.text.toString().trim()
 
             if (namaMatkul.isNotEmpty() && deskripsi.isNotEmpty()) {
                 val newMatkul = Matkul(
@@ -90,6 +87,7 @@ class MatkulActivity : AppCompatActivity() {
             }
         }
     }
+
 
     private fun deleteMatkul(matkul: Matkul) {
         matkulViewModel.delete(matkul)

@@ -1,14 +1,11 @@
 package com.project.listugas.adapter
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.project.listugas.R
+import com.project.listugas.databinding.ItemNoteBinding
 import com.project.listugas.date.DateUtils
 import com.project.listugas.entity.Note
 
@@ -17,36 +14,31 @@ class NoteAdapter(
     private val onNoteClick: (Note) -> Unit
 ) : ListAdapter<Note, NoteAdapter.NoteViewHolder>(NoteDiffCallback()) {
 
-    inner class NoteViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val judul: TextView = itemView.findViewById(R.id.judul)
-        val deskripsi: TextView = itemView.findViewById(R.id.catatan)
-        val tanggal: TextView = itemView.findViewById(R.id.tanggal)
-        val deleteButton: Button = itemView.findViewById(R.id.btn_deleteNt)
+    inner class NoteViewHolder(private val binding: ItemNoteBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        init {
-            deleteButton.setOnClickListener {
-                val note = getItem(adapterPosition)
+        fun bind(note: Note) {
+            binding.judul.text = note.judul
+            binding.catatan.text = note.deskripsi
+            binding.tanggal.text = DateUtils.formatDisplayDate(DateUtils.parseDate(note.tanggal))
+
+            binding.btnDeleteNt.setOnClickListener {
                 onDeleteClick(note)
+            }
+
+            binding.root.setOnClickListener {
+                onNoteClick(note)
             }
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_note, parent, false)
-        return NoteViewHolder(view)
+        val binding = ItemNoteBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return NoteViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: NoteViewHolder, position: Int) {
         val note = getItem(position)
-        holder.judul.text = note.judul
-        holder.deskripsi.text = note.deskripsi
-
-        val date = DateUtils.parseDate(note.tanggal)
-        holder.tanggal.text = DateUtils.formatDisplayDate(date)
-
-        holder.itemView.setOnClickListener {
-            onNoteClick(note)
-        }
+        holder.bind(note)
     }
 
     class NoteDiffCallback : DiffUtil.ItemCallback<Note>() {

@@ -1,6 +1,7 @@
 package com.project.listugas
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
@@ -9,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.project.listugas.databinding.ActivityTugasBinding
 import com.project.listugas.adapter.TugasAdapter
+import com.project.listugas.databinding.AddTugasBinding
 import com.project.listugas.entity.Tugas
 import com.project.listugas.viewmodel.MatkulViewModel
 import com.project.listugas.viewmodel.TugasViewModel
@@ -67,19 +69,12 @@ class TugasActivity : AppCompatActivity() {
     }
 
     private fun showTugasPopup(tugas: Tugas?) {
-        val dialogView = layoutInflater.inflate(R.layout.add_tugas, null)
-
-        val inputNama = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.ed_tugas)
-        tugas?.let {
-            inputNama.setText(it.namaTugas)
-        }
-
+        val dialogBinding = AddTugasBinding.inflate(LayoutInflater.from(this))
         val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
-            .setView(dialogView)
+            .setView(dialogBinding.root)
             .create()
 
         dialog.setCanceledOnTouchOutside(true)
-
         dialog.show()
 
         dialog.window?.setLayout(
@@ -88,8 +83,12 @@ class TugasActivity : AppCompatActivity() {
         )
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-        dialogView.findViewById<Button>(R.id.btn_submit).setOnClickListener {
-            val namaTugas = inputNama.text.toString().trim()
+        tugas?.let {
+            dialogBinding.edTugas.setText(it.namaTugas)
+        }
+
+        dialogBinding.btnSubmit.setOnClickListener {
+            val namaTugas = dialogBinding.edTugas.text.toString().trim()
 
             if (namaTugas.isNotEmpty()) {
                 val newTugas = Tugas(
@@ -113,6 +112,7 @@ class TugasActivity : AppCompatActivity() {
             }
         }
     }
+
 
     private fun deleteTugas(tugas: Tugas) {
         tugasViewModel.delete(tugas)
