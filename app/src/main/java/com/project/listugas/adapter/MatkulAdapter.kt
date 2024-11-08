@@ -8,14 +8,34 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.project.listugas.ListActivity
 import com.project.listugas.databinding.ItemMatkulBinding
+import com.project.listugas.databinding.ItemMatkulHeaderBinding
 import com.project.listugas.entity.Matkul
 
 class MatkulAdapter(
     private val onEditClick: (Matkul) -> Unit,
     private val onDeleteClick: (Matkul) -> Unit
-) : ListAdapter<Matkul, MatkulAdapter.MatkulViewHolder>(MatkulDiffCallback()) {
+) : ListAdapter<Any, RecyclerView.ViewHolder>(MatkulDiffCallback()) {
 
-    inner class MatkulViewHolder(private val binding: ItemMatkulBinding) : RecyclerView.ViewHolder(binding.root) {
+    // Enum for view types
+    enum class ViewType {
+        HEADER,
+        ITEM
+    }
+
+    // Data class to hold category information
+    data class CategoryItem(val categoryName: String)
+
+    // Custom ViewHolder for the header
+    inner class HeaderViewHolder(private val binding: ItemMatkulHeaderBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(categoryName: String) {
+            binding.headerTitle.text = categoryName
+        }
+    }
+
+    // ViewHolder for the regular item
+    inner class MatkulViewHolder(private val binding: ItemMatkulBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
         fun bind(matkul: Matkul) {
             binding.nama.text = matkul.namaMatkul
@@ -38,22 +58,46 @@ class MatkulAdapter(
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MatkulViewHolder {
-        val binding = ItemMatkulBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return MatkulViewHolder(binding)
+    override fun getItemViewType(position: Int): Int {
+        return when (getItem(position)) {
+            is CategoryItem -> ViewType.HEADER.ordinal
+            is Matkul -> ViewType.ITEM.ordinal
+            else -> throw IllegalArgumentException("Unknown item type")
+        }
     }
 
-    override fun onBindViewHolder(holder: MatkulViewHolder, position: Int) {
-        holder.bind(getItem(position))
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return when (ViewType.values()[viewType]) {
+            ViewType.HEADER -> {
+                val binding = ItemMatkulHeaderBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                HeaderViewHolder(binding)
+            }
+            ViewType.ITEM -> {
+                val binding = ItemMatkulBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                MatkulViewHolder(binding)
+            }
+        }
     }
 
-    class MatkulDiffCallback : DiffUtil.ItemCallback<Matkul>() {
-        override fun areItemsTheSame(oldItem: Matkul, newItem: Matkul): Boolean {
-            return oldItem.id == newItem.id
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (val item = getItem(position)) {
+            is CategoryItem -> (holder as HeaderViewHolder).bind(item.categoryName)
+            is Matkul -> (holder as MatkulViewHolder).bind(item)
+        }
+    }
+
+    class MatkulDiffCallback : DiffUtil.ItemCallback<Any>() {
+        override fun areItemsTheSame(oldItem: Any, newItem: Any): Boolean {
+            return when {
+                oldItem is Matkul && newItem is Matkul -> oldItem.id == newItem.id
+                oldItem is CategoryItem && newItem is CategoryItem -> oldItem.categoryName == newItem.categoryName
+                else -> false
+            }
         }
 
-        override fun areContentsTheSame(oldItem: Matkul, newItem: Matkul): Boolean {
+        override fun areContentsTheSame(oldItem: Any, newItem: Any): Boolean {
             return oldItem == newItem
         }
     }
+
 }

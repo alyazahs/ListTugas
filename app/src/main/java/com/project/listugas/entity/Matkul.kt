@@ -7,5 +7,6 @@ import androidx.room.PrimaryKey
 data class Matkul(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val namaMatkul: String,
-    val deskripsi: String
+    val deskripsi: String,
+    val category: String // Ensure this matches the new field added
 )

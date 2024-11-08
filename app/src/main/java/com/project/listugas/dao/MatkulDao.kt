@@ -1,12 +1,7 @@
 package com.project.listugas.dao
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
-import androidx.room.Update
+import androidx.room.*
 import com.project.listugas.entity.Matkul
 
 @Dao
@@ -25,7 +20,4 @@ interface MatkulDao {
 
     @Query("SELECT * FROM matkul WHERE id = :matkulId LIMIT 1")
     fun getMatkulById(matkulId: Int): LiveData<Matkul>
-
-    @Query("SELECT * FROM matkul")
-    fun getAll(): Array<Matkul>
 }

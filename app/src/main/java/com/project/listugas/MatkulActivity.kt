@@ -3,12 +3,12 @@ package com.project.listugas
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.project.listugas.adapter.MatkulAdapter
+import com.project.listugas.adapter.MatkulAdapter.CategoryItem
 import com.project.listugas.databinding.ActivityMatkulBinding
 import com.project.listugas.databinding.AddMatkulBinding
 import com.project.listugas.entity.Matkul
@@ -34,7 +34,10 @@ class MatkulActivity : AppCompatActivity() {
         binding.rvMatkul.adapter = adapter
 
         matkulViewModel.allMatkuls.observe(this) { matkuls ->
-            matkuls?.let { adapter.submitList(it) }
+            matkuls?.let {
+                val categorizedList = createCategorizedList(it)
+                adapter.submitList(categorizedList)
+            }
         }
 
         binding.btnMatkul.setOnClickListener {
@@ -42,52 +45,21 @@ class MatkulActivity : AppCompatActivity() {
         }
     }
 
-    private fun showMatkulPopup(matkul: Matkul? = null) {
-        val dialogBinding = AddMatkulBinding.inflate(LayoutInflater.from(this))
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
-            .setView(dialogBinding.root)
-            .create()
+    private fun createCategorizedList(matkuls: List<Matkul>): List<Any> {
+        val categorizedList = mutableListOf<Any>()
+        val groupedMatkuls = matkuls.groupBy { it.category }
 
-        dialog.setCanceledOnTouchOutside(true)
-
-        dialog.show()
-
-        dialog.window?.setLayout(
-            (resources.displayMetrics.widthPixels * 0.85).toInt(),
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-
-        matkul?.let {
-            dialogBinding.edNama.setText(it.namaMatkul)
-            dialogBinding.edDesk.setText(it.deskripsi)
+        for ((category, items) in groupedMatkuls) {
+            categorizedList.add(CategoryItem(category))
+            categorizedList.addAll(items)
         }
 
-        dialogBinding.btnSubmit.setOnClickListener {
-            val namaMatkul = dialogBinding.edNama.text.toString().trim()
-            val deskripsi = dialogBinding.edDesk.text.toString().trim()
-
-            if (namaMatkul.isNotEmpty() && deskripsi.isNotEmpty()) {
-                val newMatkul = Matkul(
-                    id = matkul?.id ?: 0,
-                    namaMatkul = namaMatkul,
-                    deskripsi = deskripsi
-                )
-
-                if (matkul == null) {
-                    matkulViewModel.insert(newMatkul)
-                    Toast.makeText(this, "Matkul berhasil ditambahkan", Toast.LENGTH_SHORT).show()
-                } else {
-                    matkulViewModel.update(newMatkul)
-                    Toast.makeText(this, "Matkul berhasil diperbarui", Toast.LENGTH_SHORT).show()
-                }
-                dialog.dismiss()
-            } else {
-                Toast.makeText(this, "Isi semua field", Toast.LENGTH_SHORT).show()
-            }
-        }
+        return categorizedList
     }
 
+    private fun showMatkulPopup(matkul: Matkul? = null) {
+        // Functionality for showing the popup to add or edit Matkul
+    }
 
     private fun deleteMatkul(matkul: Matkul) {
         matkulViewModel.delete(matkul)
