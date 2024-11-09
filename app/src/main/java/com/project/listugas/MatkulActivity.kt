@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.project.listugas.adapter.MatkulAdapter
@@ -57,14 +58,12 @@ class MatkulActivity : AppCompatActivity() {
     }
 
     private fun loadCategories() {
-        // Ambil kategori yang sudah disimpan di SharedPreferences
         val storedCategories = sharedPreferences.getStringSet("categories", setOf())
         categories.clear()
         categories.addAll(storedCategories ?: setOf("Umum"))
     }
 
     private fun saveCategories() {
-        // Simpan kategori yang ada ke SharedPreferences
         sharedPreferences.edit().putStringSet("categories", categories.toSet()).apply()
     }
 
@@ -82,7 +81,7 @@ class MatkulActivity : AppCompatActivity() {
 
     private fun showMatkulPopup(matkul: Matkul? = null) {
         val dialogBinding = AddMatkulBinding.inflate(LayoutInflater.from(this))
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setView(dialogBinding.root)
             .create()
 
@@ -96,11 +95,10 @@ class MatkulActivity : AppCompatActivity() {
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
         // Setup Spinner untuk kategori
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categories)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        dialogBinding.spinnerCategory.adapter = adapter
+        val categoryAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categories)
+        categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        dialogBinding.spinnerCategory.adapter = categoryAdapter
 
-        // Set selected category jika sedang edit
         matkul?.let {
             dialogBinding.edNama.setText(it.namaMatkul)
             dialogBinding.edDesk.setText(it.deskripsi)
@@ -108,13 +106,12 @@ class MatkulActivity : AppCompatActivity() {
             dialogBinding.spinnerCategory.setSelection(categoryIndex)
         }
 
-        // Tombol submit untuk matkul
         dialogBinding.btnSubmit.setOnClickListener {
             val namaMatkul = dialogBinding.edNama.text.toString().trim()
             val deskripsi = dialogBinding.edDesk.text.toString().trim()
-            val selectedCategory = dialogBinding.spinnerCategory.selectedItem.toString()
+            val selectedCategory = dialogBinding.spinnerCategory.selectedItem?.toString()
 
-            if (namaMatkul.isNotEmpty() && deskripsi.isNotEmpty() && selectedCategory.isNotEmpty()) {
+            if (namaMatkul.isNotEmpty() && deskripsi.isNotEmpty() && !selectedCategory.isNullOrEmpty()) {
                 val newMatkul = Matkul(
                     id = matkul?.id ?: 0,
                     namaMatkul = namaMatkul,
@@ -135,17 +132,28 @@ class MatkulActivity : AppCompatActivity() {
             }
         }
 
-        // Tombol untuk menambahkan kategori baru
         dialogBinding.btnSubmitCategory.setOnClickListener {
             val newCategory = dialogBinding.edNewCategory.text.toString().trim()
             if (newCategory.isNotEmpty()) {
                 categories.add(newCategory)
-                saveCategories()  // Simpan kategori baru
-                adapter.notifyDataSetChanged()
+                saveCategories()
+                categoryAdapter.notifyDataSetChanged()
                 dialogBinding.edNewCategory.text?.clear()
                 Toast.makeText(this, "Kategori berhasil ditambahkan", Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(this, "Isi nama kategori", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        dialogBinding.btnDeleteCategory?.setOnClickListener {
+            val categoryToDelete = dialogBinding.spinnerCategory.selectedItem?.toString()
+            if (!categoryToDelete.isNullOrEmpty() && categoryToDelete != "Umum") {
+                categories.remove(categoryToDelete)
+                saveCategories()
+                categoryAdapter.notifyDataSetChanged()
+                Toast.makeText(this, "Kategori berhasil dihapus", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Kategori 'Umum' tidak dapat dihapus", Toast.LENGTH_SHORT).show()
             }
         }
     }

@@ -4,7 +4,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:backgroundTint="@color/blue1"
     android:background="@drawable/rounded_popup_background"
     android:elevation="8dp"
     android:layout_margin="16dp">
@@ -17,7 +16,8 @@
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="16dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/ed_nama"
@@ -31,11 +31,10 @@
         android:id="@+id/inputLayout2"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
-        android:layout_height="250dp"
+        android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/inputLayout1"
-        app:layout_constraintBottom_toTopOf="@+id/spinnerCategory"
         android:layout_marginTop="16dp">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -49,7 +48,7 @@
     <!-- Spinner untuk kategori -->
     <Spinner
         android:id="@+id/spinnerCategory"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/inputLayout2"
         app:layout_constraintEnd_toEndOf="parent"
@@ -65,7 +64,6 @@
         app:layout_constraintTop_toBottomOf="@id/spinnerCategory"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/btnSubmitCategory"
         android:layout_marginTop="16dp">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -81,7 +79,6 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Add Category"
-        android:backgroundTint="@color/blue"
         app:layout_constraintTop_toBottomOf="@id/inputLayoutCategory"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -92,10 +89,21 @@
         android:id="@+id/btn_submit"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/blue"
         android:text="@string/submit"
         app:layout_constraintTop_toBottomOf="@id/btnSubmitCategory"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="16dp"/>
+
+    <!-- Tombol untuk menghapus kategori -->
+    <Button
+        android:id="@+id/btnDeleteCategory"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Delete Category"
+        app:layout_constraintTop_toBottomOf="@id/btn_submit"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="8dp"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
