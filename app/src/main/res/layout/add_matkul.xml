@@ -9,6 +9,7 @@
     android:elevation="8dp"
     android:layout_margin="16dp">
 
+    <!-- TextInputLayout untuk Nama Matkul -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/inputLayout1"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -25,6 +26,7 @@
             android:hint="@string/matkul" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <!-- TextInputLayout untuk Deskripsi -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/inputLayout2"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -33,7 +35,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/inputLayout1"
-        app:layout_constraintBottom_toTopOf="@+id/btn_submit">
+        app:layout_constraintBottom_toTopOf="@+id/spinnerCategory"
+        android:layout_marginTop="16dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/ed_desk"
@@ -43,13 +46,56 @@
             android:gravity="start"/>
     </com.google.android.material.textfield.TextInputLayout>
 
+    <!-- Spinner untuk kategori -->
+    <Spinner
+        android:id="@+id/spinnerCategory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/inputLayout2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp"/>
+
+    <!-- EditText untuk menambah kategori baru -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/inputLayoutCategory"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/spinnerCategory"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/btnSubmitCategory"
+        android:layout_marginTop="16dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edNewCategory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Add Category"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Tombol untuk menambahkan kategori baru -->
+    <Button
+        android:id="@+id/btnSubmitCategory"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Add Category"
+        android:backgroundTint="@color/blue"
+        app:layout_constraintTop_toBottomOf="@id/inputLayoutCategory"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp"/>
+
+    <!-- Tombol submit untuk matkul -->
     <Button
         android:id="@+id/btn_submit"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="@string/submit"
         android:backgroundTint="@color/blue"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:text="@string/submit"
+        app:layout_constraintTop_toBottomOf="@id/btnSubmitCategory"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
