@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:backgroundTint="@color/blue1"
     android:background="@drawable/rounded_popup_background"
     android:elevation="8dp"
     android:layout_margin="16dp">
 
+    <!-- TextInputLayout for Note Title -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/inputLayout1"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -24,6 +26,7 @@
             android:hint="@string/judul" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <!-- TextInputLayout for Note Description -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/inputLayout2"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -31,24 +34,67 @@
         android:layout_height="250dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/inputLayout1">
+        app:layout_constraintTop_toBottomOf="@id/inputLayout1"
+        android:layout_marginTop="16dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/ed_desk"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="start"
-            android:hint="@string/note" />
+            android:hint="@string/note"
+            android:gravity="start"/>
     </com.google.android.material.textfield.TextInputLayout>
 
-    <Button
-        android:id="@+id/btn_submit"
-        android:layout_width="330dp"
+    <!-- Spinner for categories -->
+    <Spinner
+        android:id="@+id/spinnerCategory"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/submit"
-        android:backgroundTint="@color/blue"
+        app:layout_constraintTop_toBottomOf="@id/inputLayout2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/inputLayout2" />
+        android:layout_marginTop="16dp"/>
 
+    <!-- TextInputLayout for adding new category -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/inputLayoutCategory"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/spinnerCategory"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/btnSubmitCategory"
+        android:layout_marginTop="16dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edNewCategory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Add Category"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Button for adding new category -->
+    <Button
+        android:id="@+id/btnSubmitCategory"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Add Category"
+        android:backgroundTint="@color/blue"
+        app:layout_constraintTop_toBottomOf="@id/inputLayoutCategory"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp"/>
+
+    <!-- Submit button for note -->
+    <Button
+        android:id="@+id/btn_submit"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/blue"
+        android:text="@string/submit"
+        app:layout_constraintTop_toBottomOf="@id/btnSubmitCategory"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

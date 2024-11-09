@@ -6,6 +6,7 @@ import android.os.Parcel
 import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -17,7 +18,6 @@ import com.project.listugas.date.DateUtils
 import com.project.listugas.entity.Note
 import com.project.listugas.viewmodel.NoteViewModel
 import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
 
 class NoteActivity() : AppCompatActivity(), Parcelable {
@@ -25,6 +25,12 @@ class NoteActivity() : AppCompatActivity(), Parcelable {
     private val noteViewModel: NoteViewModel by viewModels()
     private lateinit var adapter: NoteAdapter
     private var matkulId: Int = -1
+
+    private val categories = mutableListOf<String>()
+
+    private val sharedPreferences by lazy {
+        getSharedPreferences("NotePreferences", MODE_PRIVATE)
+    }
 
     constructor(parcel: Parcel) : this() {
         matkulId = parcel.readInt()
@@ -36,6 +42,8 @@ class NoteActivity() : AppCompatActivity(), Parcelable {
         setContentView(binding.root)
 
         matkulId = intent.getIntExtra("MATKUL_ID", -1)
+
+        loadCategories()
 
         adapter = NoteAdapter(
             onDeleteClick = { note ->
@@ -57,9 +65,8 @@ class NoteActivity() : AppCompatActivity(), Parcelable {
 
         noteViewModel.getNoteByMatkulId(matkulId).observe(this) { noteList ->
             noteList?.let {
-                adapter.submitList(it.sortedBy { note ->
-                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse(note.tanggal)
-                })
+                val categorizedList = createCategorizedList(it)
+                adapter.submitList(categorizedList)
             }
         }
 
@@ -86,6 +93,28 @@ class NoteActivity() : AppCompatActivity(), Parcelable {
         }
     }
 
+    private fun loadCategories() {
+        val storedCategories = sharedPreferences.getStringSet("categories", setOf())
+        categories.clear()
+        categories.addAll(storedCategories ?: setOf("Umum"))
+    }
+
+    private fun saveCategories() {
+        sharedPreferences.edit().putStringSet("categories", categories.toSet()).apply()
+    }
+
+    private fun createCategorizedList(notes: List<Note>): List<Any> {
+        val categorizedList = mutableListOf<Any>()
+        val groupedNotes = notes.groupBy { it.category }
+
+        for ((category, items) in groupedNotes) {
+            categorizedList.add(NoteAdapter.CategoryItem(category))
+            categorizedList.addAll(items)
+        }
+
+        return categorizedList
+    }
+
     private fun showNotePopup(note: Note? = null) {
         val dialogBinding = AddNoteBinding.inflate(LayoutInflater.from(this))
         val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
@@ -100,23 +129,31 @@ class NoteActivity() : AppCompatActivity(), Parcelable {
         )
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categories)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        dialogBinding.spinnerCategory.adapter = adapter
+
         note?.let {
             dialogBinding.edNama.setText(it.judul)
             dialogBinding.edDesk.setText(it.deskripsi)
+            val categoryIndex = categories.indexOf(it.category)
+            dialogBinding.spinnerCategory.setSelection(categoryIndex)
         }
 
         dialogBinding.btnSubmit.setOnClickListener {
             val judulNote = dialogBinding.edNama.text.toString().trim()
             val deskripsiNote = dialogBinding.edDesk.text.toString().trim()
+            val selectedCategory = dialogBinding.spinnerCategory.selectedItem.toString()
             val currentDate = DateUtils.getCurrentDate()
 
-            if (judulNote.isNotEmpty() && deskripsiNote.isNotEmpty()) {
+            if (judulNote.isNotEmpty() && deskripsiNote.isNotEmpty() && selectedCategory.isNotEmpty()) {
                 val newNote = Note(
                     id = note?.id ?: 0,
                     judul = judulNote,
                     deskripsi = deskripsiNote,
                     matkulId = matkulId,
-                    tanggal = currentDate
+                    tanggal = currentDate,
+                    category = selectedCategory
                 )
 
                 if (note == null) {
@@ -129,6 +166,19 @@ class NoteActivity() : AppCompatActivity(), Parcelable {
                 dialog.dismiss()
             } else {
                 Toast.makeText(this, "Isi semua field", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        dialogBinding.btnSubmitCategory.setOnClickListener {
+            val newCategory = dialogBinding.edNewCategory.text.toString().trim()
+            if (newCategory.isNotEmpty()) {
+                categories.add(newCategory)
+                saveCategories()
+                adapter.notifyDataSetChanged()
+                dialogBinding.edNewCategory.text?.clear()
+                Toast.makeText(this, "Kategori berhasil ditambahkan", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Isi nama kategori", Toast.LENGTH_SHORT).show()
             }
         }
     }

@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.project.listugas.ListActivity
 import com.project.listugas.databinding.ItemMatkulBinding
-import com.project.listugas.databinding.ItemMatkulHeaderBinding
+import com.project.listugas.databinding.ItemHeaderBinding
 import com.project.listugas.entity.Matkul
 
 class MatkulAdapter(
@@ -23,7 +23,7 @@ class MatkulAdapter(
 
     data class CategoryItem(val categoryName: String)
 
-    inner class HeaderViewHolder(private val binding: ItemMatkulHeaderBinding) :
+    inner class HeaderViewHolder(private val binding: ItemHeaderBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(categoryName: String) {
             binding.headerTitle.text = categoryName
@@ -65,7 +65,7 @@ class MatkulAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (ViewType.entries[viewType]) {
             ViewType.HEADER -> {
-                val binding = ItemMatkulHeaderBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                val binding = ItemHeaderBinding.inflate(LayoutInflater.from(parent.context), parent, false)
                 HeaderViewHolder(binding)
             }
             ViewType.ITEM -> {

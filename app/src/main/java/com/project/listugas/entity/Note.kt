@@ -9,5 +9,6 @@ data class Note(
     val matkulId: Int,
     val judul: String,
     val deskripsi: String,
-    val tanggal: String
+    val tanggal: String,
+    val category: String
 )
