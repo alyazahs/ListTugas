@@ -16,16 +16,13 @@ class MatkulAdapter(
     private val onDeleteClick: (Matkul) -> Unit
 ) : ListAdapter<Any, RecyclerView.ViewHolder>(MatkulDiffCallback()) {
 
-    // Enum for view types
     enum class ViewType {
         HEADER,
         ITEM
     }
 
-    // Data class to hold category information
     data class CategoryItem(val categoryName: String)
 
-    // Custom ViewHolder for the header
     inner class HeaderViewHolder(private val binding: ItemMatkulHeaderBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(categoryName: String) {
@@ -33,7 +30,6 @@ class MatkulAdapter(
         }
     }
 
-    // ViewHolder for the regular item
     inner class MatkulViewHolder(private val binding: ItemMatkulBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
