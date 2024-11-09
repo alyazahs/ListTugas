@@ -3,7 +3,7 @@
     <string name="submit">Submit</string>
     <string name="nama">User</string>
     <string name="deskripsi">Deskripsi</string>
-    <string name="title_homepage">Mata Kuliah</string>
+    <string name="title_homepage">List Tugas</string>
     <string name="list_matkul">List of Matkul</string>
     <string name="hint_task">Masukkan Tugas</string>
     <string name="add_task">Tambah Tugas</string>
