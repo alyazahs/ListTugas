@@ -67,7 +67,7 @@ class MatkulAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return when (ViewType.values()[viewType]) {
+        return when (ViewType.entries[viewType]) {
             ViewType.HEADER -> {
                 val binding = ItemMatkulHeaderBinding.inflate(LayoutInflater.from(parent.context), parent, false)
                 HeaderViewHolder(binding)
@@ -99,5 +99,4 @@ class MatkulAdapter(
             return oldItem == newItem
         }
     }
-
 }

@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -22,12 +21,20 @@ class MatkulActivity : AppCompatActivity() {
     private lateinit var adapter: MatkulAdapter
 
     // Daftar kategori yang sudah ada
-    private val categories = mutableListOf("Umum")
+    private val categories = mutableListOf<String>()
+
+    // Menambahkan SharedPreferences untuk menyimpan kategori
+    private val sharedPreferences by lazy {
+        getSharedPreferences("MatkulPreferences", MODE_PRIVATE)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMatkulBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Ambil kategori yang disimpan di SharedPreferences saat aplikasi dibuka
+        loadCategories()
 
         adapter = MatkulAdapter(
             onEditClick = { matkul -> showMatkulPopup(matkul) },
@@ -47,6 +54,18 @@ class MatkulActivity : AppCompatActivity() {
         binding.btnMatkul.setOnClickListener {
             showMatkulPopup()
         }
+    }
+
+    private fun loadCategories() {
+        // Ambil kategori yang sudah disimpan di SharedPreferences
+        val storedCategories = sharedPreferences.getStringSet("categories", setOf())
+        categories.clear()
+        categories.addAll(storedCategories ?: setOf("Umum"))
+    }
+
+    private fun saveCategories() {
+        // Simpan kategori yang ada ke SharedPreferences
+        sharedPreferences.edit().putStringSet("categories", categories.toSet()).apply()
     }
 
     private fun createCategorizedList(matkuls: List<Matkul>): List<Any> {
@@ -121,6 +140,7 @@ class MatkulActivity : AppCompatActivity() {
             val newCategory = dialogBinding.edNewCategory.text.toString().trim()
             if (newCategory.isNotEmpty()) {
                 categories.add(newCategory)
+                saveCategories()  // Simpan kategori baru
                 adapter.notifyDataSetChanged()
                 dialogBinding.edNewCategory.text?.clear()
                 Toast.makeText(this, "Kategori berhasil ditambahkan", Toast.LENGTH_SHORT).show()
