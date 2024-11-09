@@ -29,19 +29,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="-15dp"
-        android:fontFamily="@font/quicksand_bold"
-        android:text="@string/list_matkul"
-        android:textColor="@color/black"
-        android:textSize="15sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView3" />
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_matkul"
         android:layout_width="match_parent"
@@ -49,7 +36,7 @@
         app:layout_constraintBottom_toTopOf="@+id/btn_matkul"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView4" />
+        app:layout_constraintTop_toBottomOf="@+id/imageView3" />
 
     <Button
         android:id="@+id/btn_matkul"
