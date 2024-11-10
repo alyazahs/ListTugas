@@ -71,6 +71,18 @@ class NoteActivity() : AppCompatActivity(), Parcelable {
         binding.btnNote.setOnClickListener {
             showNotePopup()
         }
+
+        binding.iconNote.setOnClickListener {
+            val intent = Intent(this, NoteActivity::class.java)
+            intent.putExtra("MATKUL_ID", matkulId)
+            startActivity(intent)
+        }
+
+        binding.iconTodo.setOnClickListener {
+            val intent = Intent(this, TugasActivity::class.java)
+            intent.putExtra("MATKUL_ID", matkulId)
+            startActivity(intent)
+        }
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {

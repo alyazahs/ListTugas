@@ -1,5 +1,6 @@
 package com.project.listugas
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -66,6 +67,26 @@ class TugasActivity : AppCompatActivity() {
         binding.btnTugas.setOnClickListener {
             showTugasPopup(null)
         }
+
+        binding.iconNote.setOnClickListener {
+            val intent = Intent(this, NoteActivity::class.java)
+            intent.putExtra("MATKUL_ID", matkulId)
+            startActivity(intent)
+        }
+
+        binding.iconTodo.setOnClickListener {
+            val intent = Intent(this, TugasActivity::class.java)
+            intent.putExtra("MATKUL_ID", matkulId)
+            startActivity(intent)
+        }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        val intent = Intent(this, MatkulActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        startActivity(intent)
+        finish()
     }
 
     private fun showTugasPopup(tugas: Tugas?) {

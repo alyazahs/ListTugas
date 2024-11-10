@@ -21,10 +21,8 @@ class MatkulActivity : AppCompatActivity() {
     private val matkulViewModel: MatkulViewModel by viewModels()
     private lateinit var adapter: MatkulAdapter
 
-    // Daftar kategori yang sudah ada
     private val categories = mutableListOf<String>()
 
-    // Menambahkan SharedPreferences untuk menyimpan kategori
     private val sharedPreferences by lazy {
         getSharedPreferences("MatkulPreferences", MODE_PRIVATE)
     }
@@ -34,7 +32,6 @@ class MatkulActivity : AppCompatActivity() {
         binding = ActivityMatkulBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Ambil kategori yang disimpan di SharedPreferences saat aplikasi dibuka
         loadCategories()
 
         adapter = MatkulAdapter(
@@ -94,7 +91,6 @@ class MatkulActivity : AppCompatActivity() {
         )
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-        // Setup Spinner untuk kategori
         val categoryAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categories)
         categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         dialogBinding.spinnerCategory.adapter = categoryAdapter

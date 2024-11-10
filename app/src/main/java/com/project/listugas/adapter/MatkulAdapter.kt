@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.project.listugas.ListActivity
+import com.project.listugas.NoteActivity
 import com.project.listugas.databinding.ItemMatkulBinding
 import com.project.listugas.databinding.ItemHeaderBinding
 import com.project.listugas.entity.Matkul
@@ -39,7 +39,7 @@ class MatkulAdapter(
 
             binding.root.setOnClickListener {
                 val context = binding.root.context
-                val intent = Intent(context, ListActivity::class.java)
+                val intent = Intent(context, NoteActivity::class.java)
                 intent.putExtra("MATKUL_ID", matkul.id)
                 context.startActivity(intent)
             }
