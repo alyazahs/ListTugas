@@ -17,8 +17,6 @@ import com.project.listugas.databinding.AddNoteBinding
 import com.project.listugas.date.DateUtils
 import com.project.listugas.entity.Note
 import com.project.listugas.viewmodel.NoteViewModel
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 class NoteActivity() : AppCompatActivity(), Parcelable {
     private lateinit var binding: ActivityNoteBinding
@@ -143,10 +141,10 @@ class NoteActivity() : AppCompatActivity(), Parcelable {
         dialogBinding.btnSubmit.setOnClickListener {
             val judulNote = dialogBinding.edNama.text.toString().trim()
             val deskripsiNote = dialogBinding.edDesk.text.toString().trim()
-            val selectedCategory = dialogBinding.spinnerCategory.selectedItem.toString()
+            val selectedCategory = dialogBinding.spinnerCategory.selectedItem?.toString()
             val currentDate = DateUtils.getCurrentDate()
 
-            if (judulNote.isNotEmpty() && deskripsiNote.isNotEmpty() && selectedCategory.isNotEmpty()) {
+            if (judulNote.isNotEmpty() && deskripsiNote.isNotEmpty() && !selectedCategory.isNullOrEmpty()) {
                 val newNote = Note(
                     id = note?.id ?: 0,
                     judul = judulNote,
@@ -179,6 +177,18 @@ class NoteActivity() : AppCompatActivity(), Parcelable {
                 Toast.makeText(this, "Kategori berhasil ditambahkan", Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(this, "Isi nama kategori", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        dialogBinding.btnDeleteCategory.setOnClickListener {
+            val categoryToDelete = dialogBinding.spinnerCategory.selectedItem?.toString()
+            if (!categoryToDelete.isNullOrEmpty() && categoryToDelete != "Umum") {
+                categories.remove(categoryToDelete)
+                saveCategories()
+                adapter.notifyDataSetChanged()
+                Toast.makeText(this, "Kategori berhasil dihapus", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Kategori 'Umum' tidak dapat dihapus", Toast.LENGTH_SHORT).show()
             }
         }
     }

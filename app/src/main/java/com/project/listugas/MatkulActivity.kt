@@ -145,7 +145,7 @@ class MatkulActivity : AppCompatActivity() {
             }
         }
 
-        dialogBinding.btnDeleteCategory?.setOnClickListener {
+        dialogBinding.btnDeleteCategory.setOnClickListener {
             val categoryToDelete = dialogBinding.spinnerCategory.selectedItem?.toString()
             if (!categoryToDelete.isNullOrEmpty() && categoryToDelete != "Umum") {
                 categories.remove(categoryToDelete)

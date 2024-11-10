@@ -4,11 +4,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:backgroundTint="@color/blue1"
     android:background="@drawable/rounded_popup_background"
     android:elevation="8dp"
     android:layout_margin="16dp">
 
-    <!-- TextInputLayout untuk Nama Matkul -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/inputLayout1"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -23,10 +23,9 @@
             android:id="@+id/ed_nama"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/matkul" />
+            android:hint="@string/judul" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- TextInputLayout untuk Deskripsi -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/inputLayout2"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -45,7 +44,6 @@
             android:gravity="start"/>
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Spinner untuk kategori -->
     <Spinner
         android:id="@+id/spinnerCategory"
         android:layout_width="0dp"
@@ -55,7 +53,6 @@
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="16dp"/>
 
-    <!-- EditText untuk menambah kategori baru -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/inputLayoutCategory"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -70,40 +67,41 @@
             android:id="@+id/edNewCategory"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Add Category"/>
+            android:hint="@string/add_ctg"/>
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Tombol untuk menambahkan kategori baru -->
     <Button
         android:id="@+id/btnSubmitCategory"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Add Category"
+        android:text="@string/add_ctg"
+        android:backgroundTint="@color/blue"
         app:layout_constraintTop_toBottomOf="@id/inputLayoutCategory"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btnDeleteCategory"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="16dp"/>
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"/>
 
-    <!-- Tombol submit untuk matkul -->
+    <Button
+        android:id="@+id/btnDeleteCategory"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/del_ctg"
+        android:backgroundTint="@color/blue"
+        app:layout_constraintTop_toBottomOf="@id/inputLayoutCategory"
+        app:layout_constraintStart_toEndOf="@id/btnSubmitCategory"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="8dp"/>
+
     <Button
         android:id="@+id/btn_submit"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/submit"
+        android:backgroundTint="@color/blue"
         app:layout_constraintTop_toBottomOf="@id/btnSubmitCategory"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="16dp"/>
-
-    <!-- Tombol untuk menghapus kategori -->
-    <Button
-        android:id="@+id/btnDeleteCategory"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Delete Category"
-        app:layout_constraintTop_toBottomOf="@id/btn_submit"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="8dp"/>
-
 </androidx.constraintlayout.widget.ConstraintLayout>
