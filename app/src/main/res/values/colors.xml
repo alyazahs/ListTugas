@@ -12,4 +12,7 @@
     <color name="cream_vintage">#FFE7CC</color>
     <color name="brown">#F8CBA6</color>
     <color name="dark_gray">#A9A9A9</color>
+    <color name="dimmed_background">#E0E0E0</color> <!-- A light gray color for completed tasks -->
+    <color name="normal_background">#FFFFFF</color> <!-- A white color for incomplete tasks -->
+
 </resources>

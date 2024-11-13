@@ -1,10 +1,13 @@
 package com.project.listugas.adapter
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.project.listugas.R
 import com.project.listugas.databinding.ItemHeaderBinding
 import com.project.listugas.databinding.ItemTugasBinding
 import com.project.listugas.entity.Tugas
@@ -62,6 +65,16 @@ class TugasAdapter(
             binding.checkboxTask.setOnCheckedChangeListener(null)
             binding.checkboxTask.isChecked = tugas.isCompleted
 
+            val context: Context = binding.root.context
+            if (tugas.isCompleted) {
+                binding.root.setBackgroundColor(ContextCompat.getColor(context, R.color.dimmed_background))
+                binding.namaTugas.alpha = 0.5f
+                binding.checkboxTask.alpha = 0.5f
+            } else {
+                binding.root.setBackgroundColor(ContextCompat.getColor(context, R.color.gray))
+                binding.namaTugas.alpha = 1.0f
+                binding.checkboxTask.alpha = 1.0f
+            }
             binding.checkboxTask.setOnCheckedChangeListener { _, isChecked ->
                 onStatusChange(tugas, isChecked)
             }

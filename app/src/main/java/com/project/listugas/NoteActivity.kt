@@ -2,15 +2,13 @@ package com.project.listugas
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.Parcel
-import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import com.project.listugas.adapter.NoteAdapter
 import com.project.listugas.databinding.ActivityNoteBinding
 import com.project.listugas.databinding.AddNoteBinding
@@ -18,7 +16,7 @@ import com.project.listugas.date.DateUtils
 import com.project.listugas.entity.Note
 import com.project.listugas.viewmodel.NoteViewModel
 
-class NoteActivity() : AppCompatActivity(), Parcelable {
+class NoteActivity : AppCompatActivity() {
     private lateinit var binding: ActivityNoteBinding
     private val noteViewModel: NoteViewModel by viewModels()
     private lateinit var adapter: NoteAdapter
@@ -28,10 +26,6 @@ class NoteActivity() : AppCompatActivity(), Parcelable {
 
     private val sharedPreferences by lazy {
         getSharedPreferences("NotePreferences", MODE_PRIVATE)
-    }
-
-    constructor(parcel: Parcel) : this() {
-        matkulId = parcel.readInt()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,7 +52,18 @@ class NoteActivity() : AppCompatActivity(), Parcelable {
             }
         )
 
-        binding.rvNote.layoutManager = LinearLayoutManager(this)
+        val customLayoutManager = GridLayoutManager(this, 2)
+        customLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+            override fun getSpanSize(position: Int): Int {
+                return when (adapter.getItemViewType(position)) {
+                    NoteAdapter.ViewType.HEADER.ordinal -> 2
+                    NoteAdapter.ViewType.ITEM.ordinal -> 1
+                    else -> 1
+                }
+            }
+        }
+
+        binding.rvNote.layoutManager = customLayoutManager
         binding.rvNote.adapter = adapter
 
         noteViewModel.getNoteByMatkulId(matkulId).observe(this) { noteList ->
@@ -82,24 +87,6 @@ class NoteActivity() : AppCompatActivity(), Parcelable {
             val intent = Intent(this, TugasActivity::class.java)
             intent.putExtra("MATKUL_ID", matkulId)
             startActivity(intent)
-        }
-    }
-
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeInt(matkulId)
-    }
-
-    override fun describeContents(): Int {
-        return 0
-    }
-
-    companion object CREATOR : Parcelable.Creator<NoteActivity> {
-        override fun createFromParcel(parcel: Parcel): NoteActivity {
-            return NoteActivity(parcel)
-        }
-
-        override fun newArray(size: Int): Array<NoteActivity?> {
-            return arrayOfNulls(size)
         }
     }
 
