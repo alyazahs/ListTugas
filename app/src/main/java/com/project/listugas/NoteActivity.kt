@@ -14,11 +14,13 @@ import com.project.listugas.databinding.ActivityNoteBinding
 import com.project.listugas.databinding.AddNoteBinding
 import com.project.listugas.date.DateUtils
 import com.project.listugas.entity.Note
+import com.project.listugas.viewmodel.MatkulViewModel
 import com.project.listugas.viewmodel.NoteViewModel
 
 class NoteActivity : AppCompatActivity() {
     private lateinit var binding: ActivityNoteBinding
     private val noteViewModel: NoteViewModel by viewModels()
+    private val matkulViewModel: MatkulViewModel by viewModels()
     private lateinit var adapter: NoteAdapter
     private var matkulId: Int = -1
 
@@ -65,6 +67,12 @@ class NoteActivity : AppCompatActivity() {
 
         binding.rvNote.layoutManager = customLayoutManager
         binding.rvNote.adapter = adapter
+
+        matkulViewModel.getMatkulById(matkulId).observe(this) { matkul ->
+            matkul?.let {
+                binding.tvname.text = it.namaMatkul
+            }
+        }
 
         noteViewModel.getNoteByMatkulId(matkulId).observe(this) { noteList ->
             noteList?.let {
