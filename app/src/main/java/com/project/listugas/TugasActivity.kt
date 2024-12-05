@@ -34,32 +34,31 @@ class TugasActivity : AppCompatActivity() {
         matkulId = intent.getIntExtra("MATKUL_ID", -1)
 
         adapter = TugasAdapter(
-            onDeleteClick = { tugas ->
-                deleteTugas(tugas)
-            },
-            onStatusChange = { tugas, isCompleted ->
-                tugasViewModel.updateStatus(tugas.id, isCompleted)
-            },
-            onItemClick = { tugas ->
-                showTugasPopup(tugas)
-            }
+            onDeleteClick = { tugas -> deleteTugas(tugas) },
+            onStatusChange = { tugas, isCompleted -> tugasViewModel.updateStatus(tugas.id, isCompleted) },
+            onItemClick = { tugas -> showTugasPopup(tugas) }
         )
 
         binding.rvTugas.layoutManager = LinearLayoutManager(this)
         binding.rvTugas.adapter = adapter
 
-        tugasViewModel.getTugasByMatkulId(matkulId).observe(this) { tugasList ->
+        // Mengobservasi perubahan data tugas
+        tugasViewModel.getTugasByMatkulId(matkulId)
+
+        tugasViewModel.tugasList.observe(this) { tugasList ->
             tugasList?.let {
-                adapter.submitList(it)
+                adapter.submitTugasList(it) // Update RecyclerView dengan data terbaru
             }
         }
 
+        // Mengambil data matkul untuk ditampilkan pada UI
         matkulViewModel.getMatkulById(matkulId).observe(this) { matkul ->
             matkul?.let {
                 binding.tvName.text = it.namaMatkul
             }
         }
 
+        // Menampilkan tanggal saat ini
         val currentDate = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault()).format(Date())
         binding.tvTime.text = currentDate
 
@@ -78,14 +77,6 @@ class TugasActivity : AppCompatActivity() {
             intent.putExtra("MATKUL_ID", matkulId)
             startActivity(intent)
         }
-    }
-
-    override fun onBackPressed() {
-        super.onBackPressed()
-        val intent = Intent(this, MatkulActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-        startActivity(intent)
-        finish()
     }
 
     private fun showTugasPopup(tugas: Tugas?) {
@@ -133,9 +124,22 @@ class TugasActivity : AppCompatActivity() {
         }
     }
 
-
     private fun deleteTugas(tugas: Tugas) {
         tugasViewModel.delete(tugas)
         Toast.makeText(this, "Tugas berhasil dihapus", Toast.LENGTH_SHORT).show()
+
+        // Refresh data setelah tugas dihapus
+        tugasViewModel.getTugasByMatkulId(matkulId)
     }
+
+    override fun onBackPressed() {
+        // Menangani tombol back, untuk mengarahkan kembali ke List Tugas
+        val intent = Intent(this, MatkulActivity::class.java) // Ganti dengan aktivitas yang menampilkan daftar tugas
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP // Clear stack aktivitas sebelumnya
+        startActivity(intent)
+        finish() // Menutup aktivitas TugasActivity
+
+        super.onBackPressed() // Memanggil super untuk mempertahankan perilaku default (back stack)
+    }
+
 }

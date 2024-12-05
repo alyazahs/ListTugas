@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "641447081275",
+    "project_id": "list-tugas-1d905",
+    "storage_bucket": "list-tugas-1d905.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:641447081275:android:7cb2cb43d10acbab26f31e",
+        "android_client_info": {
+          "package_name": "com.project.listugas"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjiENGdq1gmldOYgoZ3_XFpcfFYDbzza8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

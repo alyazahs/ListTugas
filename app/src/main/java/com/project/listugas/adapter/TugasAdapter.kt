@@ -1,13 +1,10 @@
 package com.project.listugas.adapter
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.project.listugas.R
 import com.project.listugas.databinding.ItemHeaderBinding
 import com.project.listugas.databinding.ItemTugasBinding
 import com.project.listugas.entity.Tugas
@@ -16,77 +13,49 @@ class TugasAdapter(
     private val onDeleteClick: (Tugas) -> Unit,
     private val onStatusChange: (Tugas, Boolean) -> Unit,
     private val onItemClick: (Tugas) -> Unit
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
-    private val tasks = mutableListOf<Any>()
+) : ListAdapter<Any, RecyclerView.ViewHolder>(TugasDiffCallback()) {
 
     companion object {
         private const val VIEW_TYPE_HEADER = 0
         private const val VIEW_TYPE_TASK = 1
     }
 
-    fun submitList(tugasList: List<Tugas>) {
-        tasks.clear()
-        tasks.add("Belum Selesai")
-        tasks.addAll(tugasList.filter { !it.isCompleted })
-        tasks.add("Selesai")
-        tasks.addAll(tugasList.filter { it.isCompleted })
-        notifyDataSetChanged()
-    }
-
     override fun getItemViewType(position: Int): Int {
-        return if (tasks[position] is String) VIEW_TYPE_HEADER else VIEW_TYPE_TASK
+        return when (getItem(position)) {
+            is String -> VIEW_TYPE_HEADER
+            is Tugas -> VIEW_TYPE_TASK
+            else -> throw IllegalArgumentException("Unknown item type")
+        }
     }
-
-    override fun getItemCount(): Int = tasks.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return if (viewType == VIEW_TYPE_HEADER) {
-            val binding = ItemHeaderBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-            HeaderViewHolder(binding)
-        } else {
-            val binding = ItemTugasBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-            TugasViewHolder(binding)
+        return when (viewType) {
+            VIEW_TYPE_HEADER -> {
+                val binding = ItemHeaderBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                HeaderViewHolder(binding)
+            }
+            VIEW_TYPE_TASK -> {
+                val binding = ItemTugasBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                TugasViewHolder(binding)
+            }
+            else -> throw IllegalArgumentException("Unknown view type $viewType")
         }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (holder is TugasViewHolder) {
-            holder.bind(tasks[position] as Tugas)
-        } else if (holder is HeaderViewHolder) {
-            holder.bind(tasks[position] as String)
+        when (holder) {
+            is HeaderViewHolder -> holder.bind(getItem(position) as String)
+            is TugasViewHolder -> holder.bind(getItem(position) as Tugas)
         }
     }
 
-    inner class TugasViewHolder(private val binding: ItemTugasBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(tugas: Tugas) {
-            binding.namaTugas.text = tugas.namaTugas
-
-            binding.checkboxTask.setOnCheckedChangeListener(null)
-            binding.checkboxTask.isChecked = tugas.isCompleted
-
-            val context: Context = binding.root.context
-            if (tugas.isCompleted) {
-                binding.root.setBackgroundColor(ContextCompat.getColor(context, R.color.dimmed_background))
-                binding.namaTugas.alpha = 0.5f
-                binding.checkboxTask.alpha = 0.5f
-            } else {
-                binding.root.setBackgroundColor(ContextCompat.getColor(context, R.color.gray))
-                binding.namaTugas.alpha = 1.0f
-                binding.checkboxTask.alpha = 1.0f
-            }
-            binding.checkboxTask.setOnCheckedChangeListener { _, isChecked ->
-                onStatusChange(tugas, isChecked)
-            }
-
-            binding.btnDeleteTgs.setOnClickListener {
-                onDeleteClick(tugas)
-            }
-
-            binding.root.setOnClickListener {
-                onItemClick(tugas)
-            }
-        }
+    fun submitTugasList(tugasList: List<Tugas>) {
+        val items = mutableListOf<Any>()
+        items.add("Belum Selesai")
+        items.addAll(tugasList.filter { !it.isCompleted })
+        items.add("Selesai")
+        items.addAll(tugasList.filter { it.isCompleted })
+        submitList(items)
     }
 
     inner class HeaderViewHolder(private val binding: ItemHeaderBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -94,4 +63,39 @@ class TugasAdapter(
             binding.headerTitle.text = header
         }
     }
+
+    inner class TugasViewHolder(private val binding: ItemTugasBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(tugas: Tugas) {
+            binding.namaTugas.text = tugas.namaTugas
+            binding.checkboxTask.isChecked = tugas.isCompleted
+            binding.checkboxTask.setOnCheckedChangeListener { _, isChecked: Boolean ->
+                onStatusChange(tugas, isChecked)
+            }
+            binding.root.setOnClickListener {
+                onItemClick(tugas)
+            }
+            binding.btnDeleteTgs.setOnClickListener {
+                onDeleteClick(tugas)
+            }
+        }
+    }
+
+    class TugasDiffCallback : DiffUtil.ItemCallback<Any>() {
+        override fun areItemsTheSame(oldItem: Any, newItem: Any): Boolean {
+            return when {
+                oldItem is Tugas && newItem is Tugas -> oldItem.id == newItem.id
+                oldItem is String && newItem is String -> oldItem == newItem
+                else -> false
+            }
+        }
+
+        override fun areContentsTheSame(oldItem: Any, newItem: Any): Boolean {
+            return when {
+                oldItem is Tugas && newItem is Tugas -> oldItem == newItem
+                oldItem is String && newItem is String -> oldItem == newItem
+                else -> false
+            }
+        }
+    }
+
 }

@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -51,6 +52,7 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 
     implementation("androidx.activity:activity-ktx:1.7.2")
+    implementation(libs.firebase.database)
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
@@ -69,4 +71,5 @@ dependencies {
 
     androidTestImplementation("androidx.room:room-testing:$room_version")
     androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0-RC.2")
+    implementation(platform("com.google.firebase:firebase-bom:33.6.0"))
 }

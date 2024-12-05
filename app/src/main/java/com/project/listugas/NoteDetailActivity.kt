@@ -52,18 +52,21 @@ class NoteDetailActivity : AppCompatActivity() {
             if (updatedTitle.isNotEmpty() && updatedContent.isNotEmpty()) {
                 val currentDate = DateUtils.getCurrentDate()
 
+                // Pastikan menggunakan noteId yang benar dari Intent
                 val updatedNote = Note(
-                    id = noteId,
+                    id = noteId,  // ID yang sudah ada, pastikan sesuai
                     matkulId = matkulId,
                     judul = updatedTitle,
                     deskripsi = updatedContent,
                     tanggal = currentDate,
                     category = selectedCategory
                 )
-                noteViewModel.update(updatedNote)
+
+                // Perbarui catatan dengan ID yang sudah ada
+                noteViewModel.updateNoteInFirebase(updatedNote)
                 Log.d("NoteDetailActivity", "Catatan diperbarui: $updatedNote")
                 Toast.makeText(this, "Catatan berhasil diperbarui", Toast.LENGTH_SHORT).show()
-                finish()
+                finish()  // Menutup activity setelah update
             } else {
                 Toast.makeText(this, "Isi semua field", Toast.LENGTH_SHORT).show()
             }

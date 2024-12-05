@@ -99,7 +99,9 @@ class MatkulActivity : AppCompatActivity() {
             dialogBinding.edNama.setText(it.namaMatkul)
             dialogBinding.edDesk.setText(it.deskripsi)
             val categoryIndex = categories.indexOf(it.category)
-            dialogBinding.spinnerCategory.setSelection(categoryIndex)
+            if (categoryIndex >= 0) {
+                dialogBinding.spinnerCategory.setSelection(categoryIndex)
+            }
         }
 
         dialogBinding.btnSubmit.setOnClickListener {

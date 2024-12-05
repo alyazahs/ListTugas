@@ -41,7 +41,7 @@ class NoteActivity : AppCompatActivity() {
 
         adapter = NoteAdapter(
             onDeleteClick = { note ->
-                noteViewModel.delete(note)
+                noteViewModel.deleteNoteFromFirebase(note.id)
                 Toast.makeText(this, "Catatan dihapus: ${note.judul}", Toast.LENGTH_SHORT).show()
             },
             onNoteClick = { note ->
@@ -74,7 +74,7 @@ class NoteActivity : AppCompatActivity() {
             }
         }
 
-        noteViewModel.getNoteByMatkulId(matkulId).observe(this) { noteList ->
+        noteViewModel.fetchNotesFromFirebase(matkulId).observe(this) { noteList ->
             noteList?.let {
                 val categorizedList = createCategorizedList(it)
                 adapter.submitList(categorizedList)
@@ -162,10 +162,10 @@ class NoteActivity : AppCompatActivity() {
                 )
 
                 if (note == null) {
-                    noteViewModel.insert(newNote)
+                    noteViewModel.insertNoteToFirebase(newNote)
                     Toast.makeText(this, "Catatan berhasil ditambahkan", Toast.LENGTH_SHORT).show()
                 } else {
-                    noteViewModel.update(newNote)
+                    noteViewModel.updateNoteInFirebase(newNote)
                     Toast.makeText(this, "Catatan berhasil diperbarui", Toast.LENGTH_SHORT).show()
                 }
                 dialog.dismiss()
@@ -191,6 +191,9 @@ class NoteActivity : AppCompatActivity() {
             val categoryToDelete = dialogBinding.spinnerCategory.selectedItem?.toString()
             if (!categoryToDelete.isNullOrEmpty() && categoryToDelete != "Umum") {
                 categories.remove(categoryToDelete)
+                if (categories.isEmpty()) {
+                    categories.add("Umum")
+                }
                 saveCategories()
                 adapter.notifyDataSetChanged()
                 Toast.makeText(this, "Kategori berhasil dihapus", Toast.LENGTH_SHORT).show()
