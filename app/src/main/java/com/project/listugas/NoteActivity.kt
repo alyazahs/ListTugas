@@ -2,6 +2,7 @@ package com.project.listugas
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
@@ -9,6 +10,11 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.project.listugas.adapter.NoteAdapter
 import com.project.listugas.databinding.ActivityNoteBinding
 import com.project.listugas.databinding.AddNoteBinding
@@ -25,6 +31,7 @@ class NoteActivity : AppCompatActivity() {
     private var matkulId: Int = -1
 
     private val categories = mutableListOf<String>()
+    private val database: DatabaseReference = FirebaseDatabase.getInstance().getReference("notes")
 
     private val sharedPreferences by lazy {
         getSharedPreferences("NotePreferences", MODE_PRIVATE)
@@ -38,10 +45,46 @@ class NoteActivity : AppCompatActivity() {
         matkulId = intent.getIntExtra("MATKUL_ID", -1)
 
         loadCategories()
+        setupRecyclerView()
+        observeViewModel()
 
+        binding.btnNote.setOnClickListener {
+            showNotePopup()
+        }
+
+        binding.iconNote.setOnClickListener {
+            val intent = Intent(this, NoteActivity::class.java)
+            intent.putExtra("MATKUL_ID", matkulId)
+            startActivity(intent)
+        }
+
+        binding.iconTodo.setOnClickListener {
+            val intent = Intent(this, TugasActivity::class.java)
+            intent.putExtra("MATKUL_ID", matkulId)
+            startActivity(intent)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        fetchNotesFromFirebase()
+    }
+
+    private fun loadCategories() {
+        val storedCategories = sharedPreferences.getStringSet("categories", setOf())
+        categories.clear()
+        categories.addAll(storedCategories ?: setOf("Umum"))
+    }
+
+    private fun saveCategories() {
+        sharedPreferences.edit().putStringSet("categories", categories.toSet()).apply()
+        Log.d("NoteActivity", "Saved categories: $categories")
+    }
+
+    private fun setupRecyclerView() {
         adapter = NoteAdapter(
             onDeleteClick = { note ->
-                noteViewModel.deleteNoteFromFirebase(note.id)
+                deleteNoteFromFirebase(note)
                 Toast.makeText(this, "Catatan dihapus: ${note.judul}", Toast.LENGTH_SHORT).show()
             },
             onNoteClick = { note ->
@@ -67,45 +110,14 @@ class NoteActivity : AppCompatActivity() {
 
         binding.rvNote.layoutManager = customLayoutManager
         binding.rvNote.adapter = adapter
+    }
 
+    private fun observeViewModel() {
         matkulViewModel.getMatkulById(matkulId).observe(this) { matkul ->
             matkul?.let {
                 binding.tvname.text = it.namaMatkul
             }
         }
-
-        noteViewModel.fetchNotesFromFirebase(matkulId).observe(this) { noteList ->
-            noteList?.let {
-                val categorizedList = createCategorizedList(it)
-                adapter.submitList(categorizedList)
-            }
-        }
-
-        binding.btnNote.setOnClickListener {
-            showNotePopup()
-        }
-
-        binding.iconNote.setOnClickListener {
-            val intent = Intent(this, NoteActivity::class.java)
-            intent.putExtra("MATKUL_ID", matkulId)
-            startActivity(intent)
-        }
-
-        binding.iconTodo.setOnClickListener {
-            val intent = Intent(this, TugasActivity::class.java)
-            intent.putExtra("MATKUL_ID", matkulId)
-            startActivity(intent)
-        }
-    }
-
-    private fun loadCategories() {
-        val storedCategories = sharedPreferences.getStringSet("categories", setOf())
-        categories.clear()
-        categories.addAll(storedCategories ?: setOf("Umum"))
-    }
-
-    private fun saveCategories() {
-        sharedPreferences.edit().putStringSet("categories", categories.toSet()).apply()
     }
 
     private fun createCategorizedList(notes: List<Note>): List<Any> {
@@ -113,8 +125,8 @@ class NoteActivity : AppCompatActivity() {
         val groupedNotes = notes.groupBy { it.category }
 
         for ((category, items) in groupedNotes) {
-            categorizedList.add(NoteAdapter.CategoryItem(category))
-            categorizedList.addAll(items)
+            categorizedList.add(NoteAdapter.CategoryItem(category)) // Header
+            categorizedList.addAll(items) // Notes
         }
 
         return categorizedList
@@ -153,7 +165,7 @@ class NoteActivity : AppCompatActivity() {
 
             if (judulNote.isNotEmpty() && deskripsiNote.isNotEmpty() && !selectedCategory.isNullOrEmpty()) {
                 val newNote = Note(
-                    id = note?.id ?: 0,
+                    id = note?.id ?: database.push().key?.hashCode() ?: generateId(judulNote, deskripsiNote, selectedCategory),
                     judul = judulNote,
                     deskripsi = deskripsiNote,
                     matkulId = matkulId,
@@ -161,11 +173,12 @@ class NoteActivity : AppCompatActivity() {
                     category = selectedCategory
                 )
 
+                database.child(newNote.id.toString()).setValue(newNote)
                 if (note == null) {
-                    noteViewModel.insertNoteToFirebase(newNote)
+                    noteViewModel.insert(newNote)
                     Toast.makeText(this, "Catatan berhasil ditambahkan", Toast.LENGTH_SHORT).show()
                 } else {
-                    noteViewModel.updateNoteInFirebase(newNote)
+                    noteViewModel.update(newNote)
                     Toast.makeText(this, "Catatan berhasil diperbarui", Toast.LENGTH_SHORT).show()
                 }
                 dialog.dismiss()
@@ -191,9 +204,6 @@ class NoteActivity : AppCompatActivity() {
             val categoryToDelete = dialogBinding.spinnerCategory.selectedItem?.toString()
             if (!categoryToDelete.isNullOrEmpty() && categoryToDelete != "Umum") {
                 categories.remove(categoryToDelete)
-                if (categories.isEmpty()) {
-                    categories.add("Umum")
-                }
                 saveCategories()
                 adapter.notifyDataSetChanged()
                 Toast.makeText(this, "Kategori berhasil dihapus", Toast.LENGTH_SHORT).show()
@@ -201,5 +211,35 @@ class NoteActivity : AppCompatActivity() {
                 Toast.makeText(this, "Kategori 'Umum' tidak dapat dihapus", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun deleteNoteFromFirebase(note: Note) {
+        database.child(note.id.toString()).removeValue()
+        noteViewModel.delete(note)
+        Toast.makeText(this, "Catatan ${note.judul} dihapus", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun fetchNotesFromFirebase() {
+        database.orderByChild("matkulId").equalTo(matkulId.toDouble()).addValueEventListener(object :
+            ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val notesList = mutableListOf<Note>()
+                snapshot.children.forEach { dataSnapshot ->
+                    val note = dataSnapshot.getValue(Note::class.java)
+                    note?.let { notesList.add(it) }
+                }
+                val categorizedList = createCategorizedList(notesList)
+                adapter.submitList(categorizedList)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(this@NoteActivity, "Gagal mengambil data: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun generateId(judul: String, deskripsi: String, category: String): Int {
+        val combinedData = "$judul$deskripsi$category"
+        return combinedData.hashCode()
     }
 }

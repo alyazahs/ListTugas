@@ -5,8 +5,9 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "tugas")
 data class Tugas(
-    @PrimaryKey(autoGenerate = true) var id: Int = 0,
-    val matkulId: Int = 0,
+    @PrimaryKey(autoGenerate = true)
+    var id: Int = 0,
+    val matkulName: String = "",
     val namaTugas: String = "",
     var isCompleted: Boolean = false
 )

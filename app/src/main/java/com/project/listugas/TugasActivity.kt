@@ -8,6 +8,11 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.project.listugas.databinding.ActivityTugasBinding
 import com.project.listugas.adapter.TugasAdapter
 import com.project.listugas.databinding.AddTugasBinding
@@ -24,41 +29,31 @@ class TugasActivity : AppCompatActivity() {
     private val tugasViewModel: TugasViewModel by viewModels()
     private val matkulViewModel: MatkulViewModel by viewModels()
     private lateinit var adapter: TugasAdapter
-    private var matkulId: Int = -1
+    private var matkulName: String = ""
+    private val database: DatabaseReference = FirebaseDatabase.getInstance().getReference("tugas")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityTugasBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        matkulId = intent.getIntExtra("MATKUL_ID", -1)
+        matkulName = intent.getStringExtra("MATKUL_NAME") ?: ""
 
         adapter = TugasAdapter(
             onDeleteClick = { tugas -> deleteTugas(tugas) },
-            onStatusChange = { tugas, isCompleted -> tugasViewModel.updateStatus(tugas.id, isCompleted) },
+            onStatusChange = { tugas, isCompleted -> updateTugasStatusInFirebase(tugas, isCompleted) },
             onItemClick = { tugas -> showTugasPopup(tugas) }
         )
 
         binding.rvTugas.layoutManager = LinearLayoutManager(this)
         binding.rvTugas.adapter = adapter
 
-        // Mengobservasi perubahan data tugas
-        tugasViewModel.getTugasByMatkulId(matkulId)
+        fetchTugasFromFirebase()
 
-        tugasViewModel.tugasList.observe(this) { tugasList ->
-            tugasList?.let {
-                adapter.submitTugasList(it) // Update RecyclerView dengan data terbaru
-            }
+        matkulViewModel.getMatkulByName(matkulName).observe(this) { matkul ->
+            matkul?.let { binding.tvName.text = it.namaMatkul }
         }
 
-        // Mengambil data matkul untuk ditampilkan pada UI
-        matkulViewModel.getMatkulById(matkulId).observe(this) { matkul ->
-            matkul?.let {
-                binding.tvName.text = it.namaMatkul
-            }
-        }
-
-        // Menampilkan tanggal saat ini
         val currentDate = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault()).format(Date())
         binding.tvTime.text = currentDate
 
@@ -68,15 +63,23 @@ class TugasActivity : AppCompatActivity() {
 
         binding.iconNote.setOnClickListener {
             val intent = Intent(this, NoteActivity::class.java)
-            intent.putExtra("MATKUL_ID", matkulId)
+            intent.putExtra("MATKUL_NAME", matkulName)
             startActivity(intent)
         }
 
         binding.iconTodo.setOnClickListener {
             val intent = Intent(this, TugasActivity::class.java)
-            intent.putExtra("MATKUL_ID", matkulId)
+            intent.putExtra("MATKUL_NAME", matkulName)
             startActivity(intent)
         }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        val intent = Intent(this, MatkulActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        startActivity(intent)
+        finish()
     }
 
     private fun showTugasPopup(tugas: Tugas?) {
@@ -103,20 +106,25 @@ class TugasActivity : AppCompatActivity() {
 
             if (namaTugas.isNotEmpty()) {
                 val newTugas = Tugas(
-                    id = tugas?.id ?: 0,
-                    matkulId = matkulId,
+                    id = tugas?.id ?: generateId(namaTugas, matkulName),
+                    matkulName = matkulName,
                     namaTugas = namaTugas,
                     isCompleted = tugas?.isCompleted ?: false
                 )
 
                 if (tugas == null) {
-                    tugasViewModel.insert(newTugas)
-                    Toast.makeText(this, "Tugas berhasil ditambahkan", Toast.LENGTH_SHORT).show()
+                    val key = database.push().key
+                    key?.let {
+                        newTugas.id = key.hashCode()
+                        database.child(newTugas.id.toString()).setValue(newTugas)
+                        tugasViewModel.insert(newTugas)
+                        Toast.makeText(this, "Tugas berhasil ditambahkan", Toast.LENGTH_SHORT).show()
+                    }
                 } else {
+                    database.child(tugas.id.toString()).setValue(newTugas)
                     tugasViewModel.update(newTugas)
                     Toast.makeText(this, "Tugas diperbarui", Toast.LENGTH_SHORT).show()
                 }
-
                 dialog.dismiss()
             } else {
                 Toast.makeText(this, "Isi semua field", Toast.LENGTH_SHORT).show()
@@ -125,21 +133,37 @@ class TugasActivity : AppCompatActivity() {
     }
 
     private fun deleteTugas(tugas: Tugas) {
+        database.child(tugas.id.toString()).removeValue()
         tugasViewModel.delete(tugas)
         Toast.makeText(this, "Tugas berhasil dihapus", Toast.LENGTH_SHORT).show()
-
-        // Refresh data setelah tugas dihapus
-        tugasViewModel.getTugasByMatkulId(matkulId)
     }
 
-    override fun onBackPressed() {
-        // Menangani tombol back, untuk mengarahkan kembali ke List Tugas
-        val intent = Intent(this, MatkulActivity::class.java) // Ganti dengan aktivitas yang menampilkan daftar tugas
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP // Clear stack aktivitas sebelumnya
-        startActivity(intent)
-        finish() // Menutup aktivitas TugasActivity
+    private fun fetchTugasFromFirebase() {
+        database.orderByChild("matkulName").equalTo(matkulName).addValueEventListener(object :
+            ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val tugasList = mutableListOf<Tugas>()
+                snapshot.children.forEach { dataSnapshot ->
+                    val tugas = dataSnapshot.getValue(Tugas::class.java)
+                    tugas?.let { tugasList.add(it) }
+                }
+                adapter.submitList(tugasList)
+            }
 
-        super.onBackPressed() // Memanggil super untuk mempertahankan perilaku default (back stack)
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(this@TugasActivity, "Gagal mengambil data: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 
+    private fun updateTugasStatusInFirebase(tugas: Tugas, isCompleted: Boolean) {
+        val updatedTugas = tugas.copy(isCompleted = isCompleted)
+        database.child(tugas.id.toString()).setValue(updatedTugas)
+        tugasViewModel.update(updatedTugas)
+    }
+
+    private fun generateId(namaTugas: String, matkulName: String): Int {
+        val combinedData = "$namaTugas$matkulName"
+        return combinedData.hashCode()
+    }
 }

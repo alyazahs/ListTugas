@@ -6,15 +6,17 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import com.project.listugas.databinding.NoteBinding
 import com.project.listugas.date.DateUtils
 import com.project.listugas.entity.Note
 import com.project.listugas.viewmodel.NoteViewModel
-import java.util.Date
 
 class NoteDetailActivity : AppCompatActivity() {
     private lateinit var binding: NoteBinding
     private val noteViewModel: NoteViewModel by viewModels()
+    private val database: DatabaseReference = FirebaseDatabase.getInstance().getReference("notes")
     private var matkulId: Int = -1
     private var noteId: Int = -1
 
@@ -52,21 +54,15 @@ class NoteDetailActivity : AppCompatActivity() {
             if (updatedTitle.isNotEmpty() && updatedContent.isNotEmpty()) {
                 val currentDate = DateUtils.getCurrentDate()
 
-                // Pastikan menggunakan noteId yang benar dari Intent
                 val updatedNote = Note(
-                    id = noteId,  // ID yang sudah ada, pastikan sesuai
+                    id = noteId,
                     matkulId = matkulId,
                     judul = updatedTitle,
                     deskripsi = updatedContent,
                     tanggal = currentDate,
                     category = selectedCategory
                 )
-
-                // Perbarui catatan dengan ID yang sudah ada
-                noteViewModel.updateNoteInFirebase(updatedNote)
-                Log.d("NoteDetailActivity", "Catatan diperbarui: $updatedNote")
-                Toast.makeText(this, "Catatan berhasil diperbarui", Toast.LENGTH_SHORT).show()
-                finish()  // Menutup activity setelah update
+                updateNoteInFirebase(updatedNote)
             } else {
                 Toast.makeText(this, "Isi semua field", Toast.LENGTH_SHORT).show()
             }
@@ -77,5 +73,18 @@ class NoteDetailActivity : AppCompatActivity() {
         val storedCategories = sharedPreferences.getStringSet("categories", setOf())
         categories.clear()
         categories.addAll(storedCategories ?: setOf("Umum"))
+    }
+
+    private fun updateNoteInFirebase(note: Note) {
+        database.child(note.id.toString()).setValue(note)
+            .addOnSuccessListener {
+                Log.d("NoteDetailActivity", "Catatan berhasil diperbarui di Firebase")
+                Toast.makeText(this, "Catatan berhasil diperbarui", Toast.LENGTH_SHORT).show()
+                finish()
+            }
+            .addOnFailureListener { e ->
+                Log.w("NoteDetailActivity", "Error memperbarui catatan", e)
+                Toast.makeText(this, "Gagal memperbarui catatan", Toast.LENGTH_SHORT).show()
+            }
     }
 }

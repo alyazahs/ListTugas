@@ -10,7 +10,7 @@ import androidx.room.Update
 import com.project.listugas.entity.Note
 
 @Dao
-interface NoteDao {
+interface   NoteDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(note: Note)
 
@@ -23,8 +23,11 @@ interface NoteDao {
     @Query("SELECT * FROM note ORDER BY tanggal DESC")
     fun getAllNotes(): LiveData<List<Note>>
 
+    @Query("SELECT * FROM note WHERE matkulName = :namaMatkul ORDER BY id ASC")
+    fun getNoteByMatkulName(namaMatkul: String): LiveData<List<Note>>
+
     @Query("SELECT * FROM note WHERE matkulId = :matkulId ORDER BY id ASC")
-    fun getNoteBymatkulId(matkulId: Int): LiveData<List<Note>>
+    fun getNoteByMatkulId(matkulId: Int): LiveData<List<Note>>
 
     @Query("SELECT * FROM note")
     fun getAll(): Array<Note>

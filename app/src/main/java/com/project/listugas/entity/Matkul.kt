@@ -5,10 +5,9 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "matkul")
 data class Matkul(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val namaMatkul: String="",
-    val deskripsi: String="",
-    val category: String=""
-){
-    constructor(): this(0, "", "", "")
-}
+    @PrimaryKey(autoGenerate = true)
+    var id: Int = 0,
+    val namaMatkul: String = "",
+    val deskripsi: String = "",
+    val category: String = ""
+)

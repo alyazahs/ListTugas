@@ -23,8 +23,8 @@ interface TugasDao {
     @Query("UPDATE tugas SET isCompleted = :isCompleted WHERE id = :tugasId")
     suspend fun updateStatus(tugasId: Int, isCompleted: Boolean)
 
-    @Query("SELECT * FROM tugas WHERE matkulId = :matkulId ORDER BY id ASC")
-    fun getTugasByMatkulId(matkulId: Int): LiveData<List<Tugas>>
+    @Query("SELECT * FROM tugas WHERE matkulName = :matkulNama ORDER BY id ASC")
+    fun getTugasByMatkulName(matkulNama: String): LiveData<List<Tugas>>
 
     @Query("SELECT * FROM tugas")
     fun getAll(): Array<Tugas>

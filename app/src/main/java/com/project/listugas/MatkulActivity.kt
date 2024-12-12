@@ -1,5 +1,6 @@
 package com.project.listugas
 
+import android.content.Context.MODE_PRIVATE
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -9,6 +10,8 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import com.project.listugas.adapter.MatkulAdapter
 import com.project.listugas.databinding.ActivityMatkulBinding
 import com.project.listugas.databinding.AddMatkulBinding
@@ -16,16 +19,12 @@ import com.project.listugas.entity.Matkul
 import com.project.listugas.viewmodel.MatkulViewModel
 
 class MatkulActivity : AppCompatActivity() {
-
     private lateinit var binding: ActivityMatkulBinding
     private val matkulViewModel: MatkulViewModel by viewModels()
     private lateinit var adapter: MatkulAdapter
+    private val database: DatabaseReference = FirebaseDatabase.getInstance().getReference("matkuls")
 
     private val categories = mutableListOf<String>()
-
-    private val sharedPreferences by lazy {
-        getSharedPreferences("MatkulPreferences", MODE_PRIVATE)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,7 +32,6 @@ class MatkulActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         loadCategories()
-
         adapter = MatkulAdapter(
             onEditClick = { matkul -> showMatkulPopup(matkul) },
             onDeleteClick = { matkul -> deleteMatkul(matkul) }
@@ -52,16 +50,6 @@ class MatkulActivity : AppCompatActivity() {
         binding.btnMatkul.setOnClickListener {
             showMatkulPopup()
         }
-    }
-
-    private fun loadCategories() {
-        val storedCategories = sharedPreferences.getStringSet("categories", setOf())
-        categories.clear()
-        categories.addAll(storedCategories ?: setOf("Umum"))
-    }
-
-    private fun saveCategories() {
-        sharedPreferences.edit().putStringSet("categories", categories.toSet()).apply()
     }
 
     private fun createCategorizedList(matkuls: List<Matkul>): List<Any> {
@@ -99,9 +87,7 @@ class MatkulActivity : AppCompatActivity() {
             dialogBinding.edNama.setText(it.namaMatkul)
             dialogBinding.edDesk.setText(it.deskripsi)
             val categoryIndex = categories.indexOf(it.category)
-            if (categoryIndex >= 0) {
-                dialogBinding.spinnerCategory.setSelection(categoryIndex)
-            }
+            dialogBinding.spinnerCategory.setSelection(categoryIndex)
         }
 
         dialogBinding.btnSubmit.setOnClickListener {
@@ -111,12 +97,13 @@ class MatkulActivity : AppCompatActivity() {
 
             if (namaMatkul.isNotEmpty() && deskripsi.isNotEmpty() && !selectedCategory.isNullOrEmpty()) {
                 val newMatkul = Matkul(
-                    id = matkul?.id ?: 0,
+                    id = matkul?.id ?: database.push().key.hashCode(),
                     namaMatkul = namaMatkul,
                     deskripsi = deskripsi,
                     category = selectedCategory
                 )
 
+                database.child(newMatkul.id.toString()).setValue(newMatkul)
                 if (matkul == null) {
                     matkulViewModel.insert(newMatkul)
                     Toast.makeText(this, "Matkul berhasil ditambahkan", Toast.LENGTH_SHORT).show()
@@ -157,7 +144,24 @@ class MatkulActivity : AppCompatActivity() {
     }
 
     private fun deleteMatkul(matkul: Matkul) {
+        database.child(matkul.id.toString()).removeValue()
         matkulViewModel.delete(matkul)
         Toast.makeText(this, "Matkul ${matkul.namaMatkul} dihapus", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun saveCategories() {
+        val sharedPreferences = getSharedPreferences("CategoriesPrefs", MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putStringSet("categories", categories.toSet())
+        editor.apply()
+    }
+
+    private fun loadCategories() {
+        val sharedPreferences = getSharedPreferences("CategoriesPrefs", MODE_PRIVATE)
+        val savedCategories = sharedPreferences.getStringSet("categories", setOf())
+        categories.clear()
+        savedCategories?.let {
+            categories.addAll(it)
+        }
     }
 }

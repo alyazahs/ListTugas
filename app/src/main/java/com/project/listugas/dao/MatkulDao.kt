@@ -15,9 +15,12 @@ interface MatkulDao {
     @Delete
     suspend fun delete(matkul: Matkul)
 
-    @Query("SELECT * FROM matkul ORDER BY Id")
+    @Query("SELECT * FROM matkul ORDER BY id")
     fun getAllMatkuls(): LiveData<List<Matkul>>
 
-    @Query("SELECT * FROM matkul WHERE id = :matkulId LIMIT 1")
+    @Query("SELECT * FROM matkul WHERE namaMatkul = :matkulNama")
+    fun getMatkulByName(matkulNama: String): LiveData<Matkul>
+
+    @Query("SELECT * FROM matkul WHERE id = :matkulId")
     fun getMatkulById(matkulId: Int): LiveData<Matkul>
 }
