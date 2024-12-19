@@ -8,6 +8,7 @@ data class Tugas(
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0,
     val matkulName: String = "",
+    val matkulId: Int = 0,
     val namaTugas: String = "",
     var isCompleted: Boolean = false
 )

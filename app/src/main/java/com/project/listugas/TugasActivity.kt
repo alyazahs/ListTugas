@@ -107,6 +107,7 @@ class TugasActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItem
                 val newTugas = Tugas(
                     id = tugas?.id ?: generateId(namaTugas, matkulName),
                     matkulName = matkulName,
+                    matkulId = matkulId, // Set matkulId to the task
                     namaTugas = namaTugas,
                     isCompleted = tugas?.isCompleted ?: false
                 )
@@ -138,7 +139,7 @@ class TugasActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItem
     }
 
     private fun fetchTugasFromFirebase() {
-        database.orderByChild("matkulName").equalTo(matkulName).addValueEventListener(object :
+        database.orderByChild("matkulId").equalTo(matkulId.toDouble()).addValueEventListener(object :
             ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val tugasList = mutableListOf<Tugas>()

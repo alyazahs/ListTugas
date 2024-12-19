@@ -141,17 +141,25 @@ class NoteActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
             val currentDate = DateUtils.getCurrentDate()
 
             if (judul.isNotEmpty() && deskripsi.isNotEmpty() && !selectedCategory.isNullOrEmpty()) {
+                val noteId = note?.id ?: generateId(judul, deskripsi, selectedCategory)
                 val newNote = Note(
-                    id = note?.id ?: generateId(judul, deskripsi, selectedCategory),
+                    id = noteId,
                     judul = judul,
                     deskripsi = deskripsi,
                     matkulId = matkulId,
                     tanggal = currentDate,
                     category = selectedCategory
                 )
-                database.child(newNote.id.toString()).setValue(newNote)
+
+                database.child(noteId.toString()).setValue(newNote)
+                    .addOnSuccessListener {
+                        Toast.makeText(this, "Catatan berhasil ditambahkan/diperbarui", Toast.LENGTH_SHORT).show()
+                        fetchNotesFromFirebase() // Perbarui UI
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(this, "Gagal menambahkan/memperbarui catatan: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
                 dialog.dismiss()
-                Toast.makeText(this, "Catatan berhasil ditambahkan", Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(this, "Isi semua field", Toast.LENGTH_SHORT).show()
             }
