@@ -3,18 +3,20 @@ package com.project.listugas
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.project.listugas.databinding.ActivityTugasBinding
 import com.project.listugas.adapter.TugasAdapter
+import com.project.listugas.databinding.ActivityTugasBinding
 import com.project.listugas.databinding.AddTugasBinding
 import com.project.listugas.entity.Tugas
 import com.project.listugas.viewmodel.MatkulViewModel
@@ -23,13 +25,14 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class TugasActivity : AppCompatActivity() {
+class TugasActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var binding: ActivityTugasBinding
     private val tugasViewModel: TugasViewModel by viewModels()
     private val matkulViewModel: MatkulViewModel by viewModels()
     private lateinit var adapter: TugasAdapter
     private var matkulName: String = ""
+    private var matkulId: Int = -1
     private val database: DatabaseReference = FirebaseDatabase.getInstance().getReference("tugas")
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,6 +41,7 @@ class TugasActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         matkulName = intent.getStringExtra("MATKUL_NAME") ?: ""
+        matkulId = intent.getIntExtra("MATKUL_ID", -1)
 
         adapter = TugasAdapter(
             onDeleteClick = { tugas -> deleteTugas(tugas) },
@@ -48,11 +52,8 @@ class TugasActivity : AppCompatActivity() {
         binding.rvTugas.layoutManager = LinearLayoutManager(this)
         binding.rvTugas.adapter = adapter
 
+        observeViewModel()
         fetchTugasFromFirebase()
-
-        matkulViewModel.getMatkulByName(matkulName).observe(this) { matkul ->
-            matkul?.let { binding.tvName.text = it.namaMatkul }
-        }
 
         val currentDate = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault()).format(Date())
         binding.tvTime.text = currentDate
@@ -61,16 +62,14 @@ class TugasActivity : AppCompatActivity() {
             showTugasPopup(null)
         }
 
-        binding.iconNote.setOnClickListener {
-            val intent = Intent(this, NoteActivity::class.java)
-            intent.putExtra("MATKUL_NAME", matkulName)
-            startActivity(intent)
-        }
+        binding.bottomNavigation.setOnNavigationItemSelectedListener(this)
+    }
 
-        binding.iconTodo.setOnClickListener {
-            val intent = Intent(this, TugasActivity::class.java)
-            intent.putExtra("MATKUL_NAME", matkulName)
-            startActivity(intent)
+    private fun observeViewModel() {
+        matkulViewModel.getMatkulById(matkulId).observe(this) { matkul ->
+            matkul?.let {
+                binding.tvName.text = it.namaMatkul
+            }
         }
     }
 
@@ -165,5 +164,25 @@ class TugasActivity : AppCompatActivity() {
     private fun generateId(namaTugas: String, matkulName: String): Int {
         val combinedData = "$namaTugas$matkulName"
         return combinedData.hashCode()
+    }
+
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_note -> {
+                val intent = Intent(this, NoteActivity::class.java)
+                intent.putExtra("MATKUL_ID", matkulId)
+                intent.putExtra("MATKUL_NAME", matkulName)
+                startActivity(intent)
+                return true
+            }
+            R.id.action_todo -> {
+                val intent = Intent(this, TugasActivity::class.java)
+                intent.putExtra("MATKUL_ID", matkulId)
+                intent.putExtra("MATKUL_NAME", matkulName)
+                startActivity(intent)
+                return true
+            }
+        }
+        return false
     }
 }

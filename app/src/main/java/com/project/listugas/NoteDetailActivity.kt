@@ -4,18 +4,15 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.project.listugas.databinding.NoteBinding
 import com.project.listugas.date.DateUtils
 import com.project.listugas.entity.Note
-import com.project.listugas.viewmodel.NoteViewModel
 
 class NoteDetailActivity : AppCompatActivity() {
     private lateinit var binding: NoteBinding
-    private val noteViewModel: NoteViewModel by viewModels()
     private val database: DatabaseReference = FirebaseDatabase.getInstance().getReference("notes")
     private var matkulId: Int = -1
     private var noteId: Int = -1

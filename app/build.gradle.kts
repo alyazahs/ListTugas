@@ -74,4 +74,7 @@ dependencies {
 
     // Firebase BOM for version management
     implementation(platform("com.google.firebase:firebase-bom:33.6.0"))
+
+    implementation ("androidx.viewpager2:viewpager2:1.0.0")
+    implementation ("androidx.fragment:fragment-ktx:1.3.2")
 }
