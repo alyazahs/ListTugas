@@ -18,9 +18,6 @@ interface MatkulDao {
     @Query("SELECT * FROM matkul ORDER BY id")
     fun getAllMatkuls(): LiveData<List<Matkul>>
 
-    @Query("SELECT * FROM matkul WHERE namaMatkul = :matkulNama")
-    fun getMatkulByName(matkulNama: String): LiveData<Matkul>
-
     @Query("SELECT * FROM matkul WHERE id = :matkulId")
     fun getMatkulById(matkulId: Int): LiveData<Matkul>
 }

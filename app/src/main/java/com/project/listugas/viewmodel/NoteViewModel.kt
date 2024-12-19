@@ -13,10 +13,6 @@ import kotlinx.coroutines.launch
 class NoteViewModel(application: Application) : AndroidViewModel(application) {
     private val noteDao = ListDatabase.getDatabase(application).noteDao()
 
-    fun getNoteByMatkulName(matkulName: String): LiveData<List<Note>> {
-        return noteDao.getNoteByMatkulName(matkulName)
-    }
-
     fun getNoteByMatkulId(matkulId: Int): LiveData<List<Note>> {
         return noteDao.getNoteByMatkulId(matkulId)
     }

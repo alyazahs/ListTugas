@@ -11,10 +11,6 @@ import kotlinx.coroutines.launch
 class TugasViewModel(application: Application) : AndroidViewModel(application) {
     private val tugasDao = ListDatabase.getDatabase(application).tugasDao()
 
-    fun getTugasByMatkulName(matkulNama: String): LiveData<List<Tugas>> {
-        return tugasDao.getTugasByMatkulName(matkulNama)
-    }
-
     fun insert(tugas: Tugas) = viewModelScope.launch {
         tugasDao.insert(tugas)
     }

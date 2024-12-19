@@ -13,10 +13,6 @@ class MatkulViewModel(application: Application) : AndroidViewModel(application) 
 
     val allMatkuls: LiveData<List<Matkul>> = matkulDao.getAllMatkuls()
 
-    fun getMatkulByName(namaMatkul: String): LiveData<Matkul> {
-        return matkulDao.getMatkulByName(namaMatkul)
-    }
-
     fun getMatkulById(matkulId: Int): LiveData<Matkul> {
         return matkulDao.getMatkulById(matkulId)
     }

@@ -9,8 +9,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
 import com.project.listugas.adapter.MatkulAdapter
 import com.project.listugas.databinding.ActivityMatkulBinding
 import com.project.listugas.databinding.AddMatkulBinding
@@ -19,26 +18,30 @@ import com.project.listugas.viewmodel.MatkulViewModel
 
 class MatkulActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMatkulBinding
-    private val matkulViewModel: MatkulViewModel by viewModels()
-    private lateinit var adapter: MatkulAdapter
-    private val database: DatabaseReference = FirebaseDatabase.getInstance().getReference("matkuls")
-
-    private val categories = mutableListOf<String>()
+    private val matkulViewModel: MatkulViewModel by viewModels() // ViewModel untuk mengelola data Matkul
+    private lateinit var adapter: MatkulAdapter // Adapter untuk RecyclerView Matkul
+    private val database: DatabaseReference = FirebaseDatabase.getInstance().getReference("matkul") // Referensi ke database Firebase untuk entitas "matkul"
+    private val categories = mutableListOf<String>() // Daftar kategori Matkul yang dapat dipilih pengguna
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMatkulBinding.inflate(layoutInflater)
+        binding = ActivityMatkulBinding.inflate(layoutInflater) // Menggunakan view binding
         setContentView(binding.root)
 
-        loadCategories()
+        loadCategories() // Memuat kategori yang disimpan sebelumnya dari SharedPreferences
+        fetchMatkulFromFirebase() // Mengambil data Matkul dari Firebase
+
+        // Inisialisasi adapter dengan aksi untuk edit dan hapus Matkul
         adapter = MatkulAdapter(
-            onEditClick = { matkul -> showMatkulPopup(matkul) },
-            onDeleteClick = { matkul -> deleteMatkul(matkul) }
+            onEditClick = { matkul -> showMatkulPopup(matkul) }, // Membuka popup untuk edit
+            onDeleteClick = { matkul -> deleteMatkul(matkul) } // Menghapus Matkul dari Firebase
         )
 
+        // Mengatur RecyclerView dengan LinearLayoutManager
         binding.rvMatkul.layoutManager = LinearLayoutManager(this)
         binding.rvMatkul.adapter = adapter
 
+        // Mengamati perubahan data Matkul di ViewModel dan memperbarui adapter
         matkulViewModel.allMatkuls.observe(this) { matkuls ->
             matkuls?.let {
                 val categorizedList = createCategorizedList(it)
@@ -46,42 +49,48 @@ class MatkulActivity : AppCompatActivity() {
             }
         }
 
+        // Tombol untuk menambah Matkul baru
         binding.btnMatkul.setOnClickListener {
             showMatkulPopup()
         }
     }
 
-    private fun createCategorizedList(matkuls: List<Matkul>): List<Any> {
+    // Membuat daftar Matkul terkelompok berdasarkan kategori
+    private fun createCategorizedList(matkul: List<Matkul>): List<Any> {
         val categorizedList = mutableListOf<Any>()
-        val groupedMatkuls = matkuls.groupBy { it.category }
+        val groupedMatkuls = matkul.groupBy { it.category } // Mengelompokkan Matkul berdasarkan kategori
 
         for ((category, items) in groupedMatkuls) {
-            categorizedList.add(MatkulAdapter.CategoryItem(category))
-            categorizedList.addAll(items)
+            categorizedList.add(MatkulAdapter.CategoryItem(category)) // Menambahkan header kategori
+            categorizedList.addAll(items) // Menambahkan item Matkul
         }
 
         return categorizedList
     }
 
+    // Menampilkan popup untuk menambah atau mengedit Matkul
     private fun showMatkulPopup(matkul: Matkul? = null) {
         val dialogBinding = AddMatkulBinding.inflate(LayoutInflater.from(this))
         val dialog = AlertDialog.Builder(this)
             .setView(dialogBinding.root)
             .create()
 
-        dialog.setCanceledOnTouchOutside(true)
+        dialog.setCanceledOnTouchOutside(true) // Popup ditutup jika pengguna menyentuh area luar
         dialog.show()
 
+        // Mengatur ukuran popup agar proporsional dengan layar
         dialog.window?.setLayout(
             (resources.displayMetrics.widthPixels * 0.85).toInt(),
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
+        // Inisialisasi spinner kategori dengan daftar kategori yang tersedia
         val categoryAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categories)
         categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         dialogBinding.spinnerCategory.adapter = categoryAdapter
 
+        // Jika mengedit Matkul, isi field dengan data Matkul yang ada
         matkul?.let {
             dialogBinding.edNama.setText(it.namaMatkul)
             dialogBinding.edDesk.setText(it.deskripsi)
@@ -89,6 +98,7 @@ class MatkulActivity : AppCompatActivity() {
             dialogBinding.spinnerCategory.setSelection(categoryIndex)
         }
 
+        // Tombol submit untuk menyimpan atau memperbarui Matkul
         dialogBinding.btnSubmit.setOnClickListener {
             val namaMatkul = dialogBinding.edNama.text.toString().trim()
             val deskripsi = dialogBinding.edDesk.text.toString().trim()
@@ -96,32 +106,33 @@ class MatkulActivity : AppCompatActivity() {
 
             if (namaMatkul.isNotEmpty() && deskripsi.isNotEmpty() && !selectedCategory.isNullOrEmpty()) {
                 val newMatkul = Matkul(
-                    id = matkul?.id ?: database.push().key.hashCode(),
+                    id = matkul?.id ?: database.push().key.hashCode(), // Jika Matkul baru, buat ID baru
                     namaMatkul = namaMatkul,
                     deskripsi = deskripsi,
                     category = selectedCategory
                 )
 
-                database.child(newMatkul.id.toString()).setValue(newMatkul)
+                database.child(newMatkul.id.toString()).setValue(newMatkul) // Simpan Matkul ke Firebase
                 if (matkul == null) {
-                    matkulViewModel.insert(newMatkul)
+                    matkulViewModel.insert(newMatkul) // Tambah Matkul baru ke ViewModel
                     Toast.makeText(this, "Matkul berhasil ditambahkan", Toast.LENGTH_SHORT).show()
                 } else {
-                    matkulViewModel.update(newMatkul)
+                    matkulViewModel.update(newMatkul) // Perbarui Matkul di ViewModel
                     Toast.makeText(this, "Matkul berhasil diperbarui", Toast.LENGTH_SHORT).show()
                 }
-                dialog.dismiss()
+                dialog.dismiss() // Tutup popup setelah selesai
             } else {
                 Toast.makeText(this, "Isi semua field", Toast.LENGTH_SHORT).show()
             }
         }
 
+        // Tombol untuk menambah kategori baru
         dialogBinding.btnSubmitCategory.setOnClickListener {
             val newCategory = dialogBinding.edNewCategory.text.toString().trim()
             if (newCategory.isNotEmpty()) {
                 categories.add(newCategory)
                 saveCategories()
-                categoryAdapter.notifyDataSetChanged()
+                categoryAdapter.notifyDataSetChanged() // Perbarui adapter spinner
                 dialogBinding.edNewCategory.text?.clear()
                 Toast.makeText(this, "Kategori berhasil ditambahkan", Toast.LENGTH_SHORT).show()
             } else {
@@ -129,6 +140,7 @@ class MatkulActivity : AppCompatActivity() {
             }
         }
 
+        // Tombol untuk menghapus kategori
         dialogBinding.btnDeleteCategory.setOnClickListener {
             val categoryToDelete = dialogBinding.spinnerCategory.selectedItem?.toString()
             if (!categoryToDelete.isNullOrEmpty() && categoryToDelete != "Umum") {
@@ -142,12 +154,34 @@ class MatkulActivity : AppCompatActivity() {
         }
     }
 
-    private fun deleteMatkul(matkul: Matkul) {
-        database.child(matkul.id.toString()).removeValue()
-        matkulViewModel.delete(matkul)
-        Toast.makeText(this, "Matkul ${matkul.namaMatkul} dihapus", Toast.LENGTH_SHORT).show()
+    // Mengambil data Matkul dari Firebase
+    private fun fetchMatkulFromFirebase() {
+        database.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val matkuls = snapshot.children.mapNotNull { it.getValue(Matkul::class.java) }
+                val categorizedList = createCategorizedList(matkuls)
+                adapter.submitList(categorizedList) // Perbarui daftar di adapter
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(this@MatkulActivity, "Gagal mengambil data: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 
+    // Menghapus Matkul dari Firebase
+    private fun deleteMatkul(matkul: Matkul) {
+        database.child(matkul.id.toString()).removeValue().addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                matkulViewModel.delete(matkul) // Hapus Matkul dari ViewModel
+                Toast.makeText(this, "Matkul ${matkul.namaMatkul} dihapus", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Gagal menghapus data dari Firebase", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    // Menyimpan kategori ke SharedPreferences
     private fun saveCategories() {
         val sharedPreferences = getSharedPreferences("CategoriesPrefs", MODE_PRIVATE)
         val editor = sharedPreferences.edit()
@@ -155,6 +189,7 @@ class MatkulActivity : AppCompatActivity() {
         editor.apply()
     }
 
+    // Memuat kategori dari SharedPreferences
     private fun loadCategories() {
         val sharedPreferences = getSharedPreferences("CategoriesPrefs", MODE_PRIVATE)
         val savedCategories = sharedPreferences.getStringSet("categories", setOf())
