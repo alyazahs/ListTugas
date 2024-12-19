@@ -63,6 +63,7 @@ class TugasActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItem
         }
 
         binding.bottomNavigation.setOnNavigationItemSelectedListener(this)
+        binding.bottomNavigation.selectedItemId = R.id.action_todo // Set the selected item in BottomNavigationView
     }
 
     private fun observeViewModel() {
@@ -174,13 +175,10 @@ class TugasActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItem
                 intent.putExtra("MATKUL_ID", matkulId)
                 intent.putExtra("MATKUL_NAME", matkulName)
                 startActivity(intent)
+                finish()
                 return true
             }
             R.id.action_todo -> {
-                val intent = Intent(this, TugasActivity::class.java)
-                intent.putExtra("MATKUL_ID", matkulId)
-                intent.putExtra("MATKUL_NAME", matkulName)
-                startActivity(intent)
                 return true
             }
         }

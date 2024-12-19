@@ -154,7 +154,7 @@ class NoteActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
                 database.child(noteId.toString()).setValue(newNote)
                     .addOnSuccessListener {
                         Toast.makeText(this, "Catatan berhasil ditambahkan/diperbarui", Toast.LENGTH_SHORT).show()
-                        fetchNotesFromFirebase() // Perbarui UI
+                        fetchNotesFromFirebase()
                     }
                     .addOnFailureListener { e ->
                         Toast.makeText(this, "Gagal menambahkan/memperbarui catatan: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -162,6 +162,31 @@ class NoteActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
                 dialog.dismiss()
             } else {
                 Toast.makeText(this, "Isi semua field", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        dialogBinding.btnSubmitCategory.setOnClickListener {
+            val newCategory = dialogBinding.edNewCategory.text.toString().trim()
+            if (newCategory.isNotEmpty()) {
+                categories.add(newCategory)
+                saveCategories()
+                adapter.notifyDataSetChanged()  // Update the spinner adapter to include the new category
+                dialogBinding.edNewCategory.text?.clear()
+                Toast.makeText(this, "Kategori berhasil ditambahkan", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Isi nama kategori", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        dialogBinding.btnDeleteCategory.setOnClickListener {
+            val categoryToDelete = dialogBinding.spinnerCategory.selectedItem?.toString()
+            if (!categoryToDelete.isNullOrEmpty() && categoryToDelete != "Umum") {
+                categories.remove(categoryToDelete)
+                saveCategories()
+                adapter.notifyDataSetChanged()
+                Toast.makeText(this, "Kategori berhasil dihapus", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Kategori 'Umum' tidak dapat dihapus", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -210,5 +235,13 @@ class NoteActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
             }
         }
         return false
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        val intent = Intent(this, MatkulActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        startActivity(intent)
+        finish()
     }
 }
