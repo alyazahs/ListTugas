@@ -14,6 +14,8 @@ import com.project.listugas.viewmodel.NoteViewModel
 
 class NoteDetailActivity : AppCompatActivity() {
 
+
+    //persiapan variable yang akan digunakan
     private lateinit var binding: NoteBinding
     private val database: DatabaseReference by lazy { FirebaseDatabase.getInstance().getReference("notes") }
     private val noteViewModel: NoteViewModel by viewModels()
@@ -26,6 +28,8 @@ class NoteDetailActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        //mengatur layout yang ditampilkan
         binding = NoteBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -39,21 +43,26 @@ class NoteDetailActivity : AppCompatActivity() {
         binding.noteTitle.setText(noteTitle)
         binding.noteContent.setText(noteContent)
 
-        loadCategories()
+        loadCategories() //memuat kategori
 
         // Setup spinner untuk kategori
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categories)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.spinnerCategory.adapter = adapter
 
-        // Tombol Simpan
+        // Tombol Simpan ketika di klik
         binding.saveButton.setOnClickListener {
+
+            //ambil data inputan
             val updatedTitle = binding.noteTitle.text.toString().trim()
             val updatedContent = binding.noteContent.text.toString().trim()
             val selectedCategory = binding.spinnerCategory.selectedItem?.toString() ?: "Umum"
 
+            //pengecekan apakah ada inputan yang kosong
             if (updatedTitle.isNotEmpty() && updatedContent.isNotEmpty()) {
                 val currentDate = DateUtils.getCurrentDate()
+
+                //membuat wadah untuk emnyimpan semua data
                 val updatedNote = Note(
                     id = noteId,
                     matkulId = matkulId,
@@ -62,13 +71,14 @@ class NoteDetailActivity : AppCompatActivity() {
                     tanggal = currentDate,
                     category = selectedCategory
                 )
-                updateNoteInFirebase(updatedNote)
+                updateNoteInFirebase(updatedNote) //menjalankan fungsi update data firebase, dengan mengiirmkan semua data updatedNote
             } else {
                 Toast.makeText(this, "Isi semua field", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
+    //memuat kategori
     private fun loadCategories() {
         val storedCategories = sharedPreferences.getStringSet("categories", setOf("Umum"))
         categories.clear()
@@ -76,12 +86,13 @@ class NoteDetailActivity : AppCompatActivity() {
     }
 
     private fun updateNoteInFirebase(note: Note) {
-        database.child(note.id.toString()).setValue(note)
+        database.child(note.id.toString()).setValue(note) //mengupdate data di firebase berdasarkan note.id
             .addOnSuccessListener {
+                //ketika sukses akan muncul notifikasi
                 Toast.makeText(this, "Catatan berhasil diperbarui", Toast.LENGTH_SHORT).show()
                 finish()
             }
-            .addOnFailureListener { e ->
+            .addOnFailureListener { e -> //ketika gagal akan muncul notifikasi
                 Toast.makeText(this, "Gagal memperbarui catatan: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
