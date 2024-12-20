@@ -1,5 +1,6 @@
 package com.project.listugas.adapter
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -84,6 +85,7 @@ class NoteAdapter(
             }
         }
 
+        @SuppressLint("DiffutilEquals")
         override fun areContentsTheSame(oldItem: Any, newItem: Any): Boolean {
             return oldItem == newItem
         }

@@ -25,7 +25,7 @@ class MatkulActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMatkulBinding.inflate(layoutInflater) // Menggunakan view binding
+        binding = ActivityMatkulBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         loadCategories() // Memuat kategori yang disimpan sebelumnya dari SharedPreferences
@@ -50,7 +50,7 @@ class MatkulActivity : AppCompatActivity() {
         }
 
         // Tombol untuk menambah Matkul baru
-        binding.btnMatkul.setOnClickListener {
+        binding.btnaddMatkul.setOnClickListener {
             showMatkulPopup()
         }
     }
@@ -78,7 +78,7 @@ class MatkulActivity : AppCompatActivity() {
         dialog.setCanceledOnTouchOutside(true) // Popup ditutup jika pengguna menyentuh area luar
         dialog.show()
 
-        // Mengatur ukuran popup agar proporsional dengan layar
+        // Mengatur ukuran popup
         dialog.window?.setLayout(
             (resources.displayMetrics.widthPixels * 0.85).toInt(),
             ViewGroup.LayoutParams.WRAP_CONTENT
