@@ -43,7 +43,7 @@ class MatkulActivity : AppCompatActivity() {
         createTableIfNotExists()
 
         loadCategories()
-        loadMatkulsFromLocal() // Memuat data dari SQLite
+        loadMatkulsFromLocal()
         fetchMatkulFromFirebase()
 
         adapter = MatkulAdapter(

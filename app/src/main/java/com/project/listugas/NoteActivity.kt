@@ -20,12 +20,11 @@ import com.project.listugas.entity.Note
 import com.project.listugas.viewmodel.NoteViewModel
 import com.project.listugas.viewmodel.MatkulViewModel
 
-// Aktivitas untuk menampilkan dan mengelola daftar catatan
 class NoteActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var binding: ActivityNoteBinding
     private val matkulViewModel: MatkulViewModel by viewModels()
-    private val noteViewModel: NoteViewModel by viewModels()  // NoteViewModel untuk SQLite
+    private val noteViewModel: NoteViewModel by viewModels()
     private lateinit var adapter: NoteAdapter
     private var matkulId: Int = -1
     private var matkulName: String = ""
@@ -49,7 +48,7 @@ class NoteActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
         loadCategories()
         observeViewModel()
         fetchNotesFromFirebase()
-        fetchNotesFromSQLite() // Tambahkan pemanggilan untuk mengambil data dari SQLite
+        fetchNotesFromSQLite()
     }
 
     private fun setupUI() {
@@ -57,8 +56,8 @@ class NoteActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
 
         adapter = NoteAdapter(
             onDeleteClick = { note ->
-                deleteNoteFromFirebase(note) // Hapus catatan dari Firebase
-                deleteNoteFromSQLite(note) // Hapus catatan dari SQLite
+                deleteNoteFromFirebase(note)
+                deleteNoteFromSQLite(note)
                 Toast.makeText(this, "Catatan dihapus: ${note.judul}", Toast.LENGTH_SHORT).show()
             },
             onNoteClick = { note ->
@@ -150,14 +149,12 @@ class NoteActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
                     category = selectedCategory
                 )
 
-                // Simpan catatan ke Firebase
                 database.child(noteId.toString()).setValue(newNote)
                     .addOnSuccessListener {
-                        // Simpan catatan ke SQLite juga
                         noteViewModel.insert(newNote)
                         Toast.makeText(this, "Catatan berhasil ditambahkan/diperbarui", Toast.LENGTH_SHORT).show()
                         fetchNotesFromFirebase()
-                        fetchNotesFromSQLite() // Ambil data catatan terbaru dari SQLite
+                        fetchNotesFromSQLite()
                     }
                     .addOnFailureListener { e ->
                         Toast.makeText(this, "Gagal menambahkan/memperbarui catatan: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -207,7 +204,7 @@ class NoteActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
             ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val notes = snapshot.children.mapNotNull { it.getValue(Note::class.java) }
-                adapter.submitList(createCategorizedList(notes)) // Tampilkan data ke RecyclerView
+                adapter.submitList(createCategorizedList(notes))
             }
 
             override fun onCancelled(error: DatabaseError) {
