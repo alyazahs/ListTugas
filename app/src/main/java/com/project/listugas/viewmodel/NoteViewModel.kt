@@ -21,11 +21,8 @@ class NoteViewModel(application: Application) : AndroidViewModel(application) {
         noteDao.insert(note)
     }
 
-    fun update(note: Note) {
-        viewModelScope.launch(Dispatchers.IO) {
-            noteDao.update(note)
-            Log.d("NoteViewModel", "Note updated in database: $note")
-        }
+    fun update(note: Note) = viewModelScope.launch {
+        noteDao.update(note)
     }
 
     fun delete(note: Note) = viewModelScope.launch {
