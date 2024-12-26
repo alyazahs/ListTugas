@@ -1,6 +1,7 @@
 package com.project.listugas
 
 import android.content.Intent
+import android.database.sqlite.SQLiteDatabase
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -35,6 +36,9 @@ class TugasActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItem
     private var matkulId: Int = -1
     private val database: DatabaseReference = FirebaseDatabase.getInstance().getReference("tugas")
 
+    // SQLite Database
+    private lateinit var localDatabase: SQLiteDatabase
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityTugasBinding.inflate(layoutInflater)
@@ -42,6 +46,10 @@ class TugasActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItem
 
         matkulName = intent.getStringExtra("MATKUL_NAME") ?: ""
         matkulId = intent.getIntExtra("MATKUL_ID", -1)
+
+        // Inisialisasi SQLite Database
+        localDatabase = openOrCreateDatabase("listugas.db", MODE_PRIVATE, null)
+        createTableIfNotExists()
 
         adapter = TugasAdapter(
             onDeleteClick = { tugas -> deleteTugas(tugas) },
@@ -63,7 +71,20 @@ class TugasActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItem
         }
 
         binding.bottomNavigation.setOnNavigationItemSelectedListener(this)
-        binding.bottomNavigation.selectedItemId = R.id.action_todo // Set the selected item in BottomNavigationView
+        binding.bottomNavigation.selectedItemId = R.id.action_todo // Set selected item in BottomNavigationView
+    }
+
+    private fun createTableIfNotExists() {
+        val createTableQuery = """
+            CREATE TABLE IF NOT EXISTS tugas (
+                id INTEGER PRIMARY KEY,
+                matkul_id INTEGER,
+                matkul_name TEXT,
+                nama_tugas TEXT,
+                is_completed INTEGER
+            )
+        """
+        localDatabase.execSQL(createTableQuery)
     }
 
     private fun observeViewModel() {
@@ -108,12 +129,13 @@ class TugasActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItem
                 val newTugas = Tugas(
                     id = tugas?.id ?: generateId(namaTugas, matkulName),
                     matkulName = matkulName,
-                    matkulId = matkulId, // Set matkulId to the task
+                    matkulId = matkulId,
                     namaTugas = namaTugas,
                     isCompleted = tugas?.isCompleted ?: false
                 )
 
                 if (tugas == null) {
+                    insertTugasToLocalDatabase(newTugas)
                     val key = database.push().key
                     key?.let {
                         newTugas.id = key.hashCode()
@@ -122,6 +144,7 @@ class TugasActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItem
                         Toast.makeText(this, "Tugas berhasil ditambahkan", Toast.LENGTH_SHORT).show()
                     }
                 } else {
+                    updateTugasInLocalDatabase(newTugas)
                     database.child(tugas.id.toString()).setValue(newTugas)
                     tugasViewModel.update(newTugas)
                     Toast.makeText(this, "Tugas diperbarui", Toast.LENGTH_SHORT).show()
@@ -134,6 +157,7 @@ class TugasActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItem
     }
 
     private fun deleteTugas(tugas: Tugas) {
+        deleteTugasFromLocalDatabase(tugas)
         database.child(tugas.id.toString()).removeValue()
         tugasViewModel.delete(tugas)
         Toast.makeText(this, "Tugas berhasil dihapus", Toast.LENGTH_SHORT).show()
@@ -146,21 +170,64 @@ class TugasActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItem
                 val tugasList = mutableListOf<Tugas>()
                 snapshot.children.forEach { dataSnapshot ->
                     val tugas = dataSnapshot.getValue(Tugas::class.java)
-                    tugas?.let { tugasList.add(it) }
+                    tugas?.let {
+                        tugasList.add(it)
+                        insertTugasToLocalDatabase(it) // Simpan ke SQLite
+                    }
                 }
                 adapter.submitList(tugasList)
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(this@TugasActivity, "Gagal mengambil data: ${error.message}", Toast.LENGTH_SHORT).show()
+                val tugasList = fetchTugasFromLocalDatabase() // Gunakan SQLite jika gagal
+                adapter.submitList(tugasList)
             }
         })
     }
 
     private fun updateTugasStatusInFirebase(tugas: Tugas, isCompleted: Boolean) {
         val updatedTugas = tugas.copy(isCompleted = isCompleted)
+        updateTugasInLocalDatabase(updatedTugas)
         database.child(tugas.id.toString()).setValue(updatedTugas)
         tugasViewModel.update(updatedTugas)
+    }
+
+    private fun fetchTugasFromLocalDatabase(): List<Tugas> {
+        val tugasList = mutableListOf<Tugas>()
+        val cursor = localDatabase.rawQuery("SELECT * FROM tugas WHERE matkul_id = ?", arrayOf(matkulId.toString()))
+
+        if (cursor.moveToFirst()) {
+            do {
+                val id = cursor.getInt(cursor.getColumnIndexOrThrow("id"))
+                val matkulId = cursor.getInt(cursor.getColumnIndexOrThrow("matkul_id"))
+                val matkulName = cursor.getString(cursor.getColumnIndexOrThrow("matkul_name"))
+                val namaTugas = cursor.getString(cursor.getColumnIndexOrThrow("nama_tugas"))
+                val isCompleted = cursor.getInt(cursor.getColumnIndexOrThrow("is_completed")) == 1
+
+                tugasList.add(Tugas(id, matkulName, matkulId, namaTugas, isCompleted))
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return tugasList
+    }
+
+    private fun insertTugasToLocalDatabase(tugas: Tugas) {
+        val query = """
+            INSERT OR REPLACE INTO tugas (id, matkul_id, matkul_name, nama_tugas, is_completed)
+            VALUES (?, ?, ?, ?, ?)
+        """
+        localDatabase.execSQL(query, arrayOf(tugas.id, tugas.matkulId, tugas.matkulName, tugas.namaTugas, if (tugas.isCompleted) 1 else 0))
+    }
+
+    private fun updateTugasInLocalDatabase(tugas: Tugas) {
+        val query = """
+            UPDATE tugas SET nama_tugas = ?, is_completed = ? WHERE id = ?
+        """
+        localDatabase.execSQL(query, arrayOf(tugas.namaTugas, if (tugas.isCompleted) 1 else 0, tugas.id))
+    }
+
+    private fun deleteTugasFromLocalDatabase(tugas: Tugas) {
+        localDatabase.execSQL("DELETE FROM tugas WHERE id = ?", arrayOf(tugas.id))
     }
 
     private fun generateId(namaTugas: String, matkulName: String): Int {
@@ -183,5 +250,12 @@ class TugasActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItem
             }
         }
         return false
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (::localDatabase.isInitialized) {
+            localDatabase.close()
+        }
     }
 }
