@@ -159,8 +159,9 @@ class MatkulActivity : AppCompatActivity() {
         database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val matkuls = snapshot.children.mapNotNull { it.getValue(Matkul::class.java) }
-                val categorizedList = createCategorizedList(matkuls)
-                adapter.submitList(categorizedList) // Perbarui daftar di adapter
+                matkuls.forEach { matkul ->
+                    matkulViewModel.insert(matkul) // Simpan ke database lokal
+                }
             }
 
             override fun onCancelled(error: DatabaseError) {
